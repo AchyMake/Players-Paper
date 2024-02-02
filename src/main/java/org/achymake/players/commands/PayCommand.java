@@ -33,9 +33,6 @@ public class PayCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (args.length == 0 || args.length == 1) {
-                message.send(player, "&cUsage:&f /pay target amount");
-            }
             if (args.length == 2) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
                 if (userdata.exist(offlinePlayer)) {

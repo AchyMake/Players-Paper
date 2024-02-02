@@ -2,7 +2,6 @@ package org.achymake.players.commands;
 
 import org.achymake.players.Players;
 import org.achymake.players.data.Message;
-import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,9 +21,6 @@ public class EnchantCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (args.length == 0) {
-                message.send(player, "&cUsage:&f /enchant enchantmentName amount");
-            }
             if (args.length == 1) {
                 if (player.getInventory().getItemInMainHand().getType().isAir()) {
                     message.send(player, "&cYou have to hold an item");

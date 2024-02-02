@@ -6,6 +6,7 @@ import org.achymake.players.data.Message;
 import org.achymake.players.data.Userdata;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Server;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -18,18 +19,17 @@ public class EcoCommand implements CommandExecutor, TabCompleter {
     private final Userdata userdata;
     private final Economy economy;
     private final Message message;
+    private final Server server;
     public EcoCommand(Players plugin) {
         config = plugin.getConfig();
         userdata = plugin.getUserdata();
         economy = plugin.getEconomy();
         message = plugin.getMessage();
+        server = plugin.getServer();
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (args.length == 0) {
-                message.send(player, "&cUsage:&f /eco add target amount");
-            }
             if (args.length == 2) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                 if (args[0].equalsIgnoreCase("reset")) {
@@ -71,9 +71,6 @@ public class EcoCommand implements CommandExecutor, TabCompleter {
             }
         }
         if (sender instanceof ConsoleCommandSender consoleCommandSender) {
-            if (args.length == 0) {
-                message.send(consoleCommandSender, "Usage: /eco add target amount");
-            }
             if (args.length == 2) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                 if (args[0].equalsIgnoreCase("reset")) {
@@ -119,7 +116,7 @@ public class EcoCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         List<String> commands = new ArrayList<>();
-        if (sender instanceof Player player) {
+        if (sender instanceof Player) {
             if (args.length == 1) {
                 commands.add("add");
                 commands.add("remove");
@@ -127,7 +124,7 @@ public class EcoCommand implements CommandExecutor, TabCompleter {
                 commands.add("set");
             }
             if (args.length == 2) {
-                for (OfflinePlayer players : player.getServer().getOfflinePlayers()) {
+                for (OfflinePlayer players : server.getOfflinePlayers()) {
                     commands.add(players.getName());
                 }
             }

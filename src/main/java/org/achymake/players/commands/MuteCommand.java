@@ -24,9 +24,6 @@ public class MuteCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (args.length == 0) {
-                message.send(player, "&cUsage:&f /mute target");
-            }
             if (args.length == 1) {
                 Player target = server.getPlayerExact(args[0]);
                 if (target == player) {
@@ -63,9 +60,6 @@ public class MuteCommand implements CommandExecutor, TabCompleter {
             }
         }
         if (sender instanceof ConsoleCommandSender consoleCommandSender) {
-            if (args.length == 0) {
-                message.send(consoleCommandSender, "Usage: /mute target");
-            }
             if (args.length == 1) {
                 Player target = server.getPlayerExact(args[0]);
                 if (target != null) {

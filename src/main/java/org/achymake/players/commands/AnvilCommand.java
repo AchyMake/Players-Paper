@@ -2,8 +2,7 @@ package org.achymake.players.commands;
 
 import org.achymake.players.Players;
 import org.achymake.players.data.Message;
-import org.achymake.players.data.Userdata;
-import org.bukkit.attribute.Attribute;
+import org.bukkit.Server;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
@@ -12,8 +11,10 @@ import java.util.List;
 
 public class AnvilCommand implements CommandExecutor, TabCompleter {
     private final Message message;
+    private final Server server;
     public AnvilCommand(Players plugin) {
         message = plugin.getMessage();
+        server = plugin.getServer();
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -22,8 +23,8 @@ public class AnvilCommand implements CommandExecutor, TabCompleter {
                 player.openAnvil(player.getLocation(), true);
             }
             if (args.length == 1) {
-                if (player.hasPermission("players.command.workbench.others")) {
-                    Player target = player.getServer().getPlayerExact(args[0]);
+                if (player.hasPermission("players.command.anvil.others")) {
+                    Player target = server.getPlayerExact(args[0]);
                     if (target == player) {
                         target.openAnvil(target.getLocation(), true);
                     } else {
@@ -38,7 +39,7 @@ public class AnvilCommand implements CommandExecutor, TabCompleter {
         }
         if (sender instanceof ConsoleCommandSender commandSender) {
             if (args.length == 1) {
-                Player target = commandSender.getServer().getPlayerExact(args[0]);
+                Player target = server.getPlayerExact(args[0]);
                 if (target != null) {
                     target.openWorkbench(target.getLocation(), true);
                     message.send(commandSender, "You opened anvil for " + target.getName());
@@ -53,7 +54,7 @@ public class AnvilCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 if (player.hasPermission("players.command.anvil.others")) {
-                    for (Player players : player.getServer().getOnlinePlayers()) {
+                    for (Player players : server.getOnlinePlayers()) {
                         commands.add(players.getName());
                     }
                 }

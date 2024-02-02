@@ -3,7 +3,6 @@ package org.achymake.players.commands;
 import org.achymake.players.Players;
 import org.achymake.players.data.Message;
 import org.achymake.players.data.Userdata;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

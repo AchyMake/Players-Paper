@@ -28,9 +28,6 @@ public class SkullCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (args.length == 0) {
-                message.send(player, "&cUsage:&f /skull offlinePlayer");
-            }
             if (args.length == 1) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
                 if (Arrays.asList(player.getInventory().getStorageContents()).contains(null)) {

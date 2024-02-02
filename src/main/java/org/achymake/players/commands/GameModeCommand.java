@@ -20,9 +20,6 @@ public class GameModeCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (args.length == 0) {
-                message.send(player, "&cUsage:&f /gamemode gamemodeName");
-            }
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("adventure")) {
                     if (player.getGameMode().equals(GameMode.ADVENTURE)) {
@@ -141,9 +138,6 @@ public class GameModeCommand implements CommandExecutor, TabCompleter {
             }
         }
         if (sender instanceof ConsoleCommandSender consoleCommandSender) {
-            if (args.length == 0) {
-                message.send(consoleCommandSender, "Usage: /gamemode gamemodeName");
-            }
             if (args.length == 2) {
                 Player target = server.getPlayerExact(args[1]);
                 if (target != null) {

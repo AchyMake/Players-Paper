@@ -3,7 +3,6 @@ package org.achymake.players.commands;
 import org.achymake.players.Players;
 import org.achymake.players.data.Message;
 import org.achymake.players.data.Userdata;
-import org.achymake.players.data.Warps;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,9 +22,6 @@ public class DelHomeCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (args.length == 0) {
-                message.send(player, "&cUsage:&f /delhome homeName");
-            }
             if (args.length == 1) {
                 if (userdata.homeExist(player, args[0])) {
                     userdata.setString(player, "homes." + args[0], null);

@@ -2,10 +2,8 @@ package org.achymake.players.commands;
 
 import org.achymake.players.Players;
 import org.achymake.players.data.Message;
-import org.achymake.players.data.Userdata;
 import org.achymake.players.data.Warps;
 import org.bukkit.command.*;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -21,9 +19,6 @@ public class DelWarpCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (args.length == 0) {
-                message.send(player, "&cUsage:&f /delwarp warpName");
-            }
             if (args.length == 1) {
                 if (warps.locationExist(args[0])) {
                     warps.delWarp(args[0]);

@@ -22,9 +22,6 @@ public class SetWarpCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (args.length == 0) {
-                message.send(player, "&cUsage:&f /setwarp warpName");
-            }
             if (args.length == 1) {
                 if (warps.locationExist(args[0])) {
                     warps.setLocation(args[0], player.getLocation());

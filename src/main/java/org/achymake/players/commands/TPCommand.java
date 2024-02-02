@@ -22,9 +22,6 @@ public class TPCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (args.length == 0) {
-                message.send(player, "&cUsage:&f /tp target target");
-            }
             if (args.length == 1) {
                 Player target = server.getPlayerExact(args[0]);
                 if (target != null) {

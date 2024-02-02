@@ -393,6 +393,12 @@ permissions:
   players.command.flyspeed:
     description: message
     default: op
+  players.command.flyspeed.others:
+    description: message
+    default: op
+  players.command.flyspeed.exempt:
+    description: message
+    default: op
   players.command.freeze:
     description: message
     default: op
@@ -589,6 +595,12 @@ permissions:
     description: message
     default: op
   players.command.walkspeed:
+    description: message
+    default: op
+  players.command.walkspeed.others:
+    description: message
+    default: op
+  players.command.walkspeed.exempt:
     description: message
     default: op
   players.command.warp:

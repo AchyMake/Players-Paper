@@ -2,6 +2,7 @@ package org.achymake.players.api;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.achymake.players.Players;
+import org.achymake.players.data.Economy;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,18 +37,23 @@ public class PlaceholderProvider extends PlaceholderExpansion {
     public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
         if (player == null) {
             return "";
-        }
-        if (params.equals("name")) {
-            return Players.getInstance().getUserdata().getConfig(player).getString("name");
-        }
-        if (params.equals("display-name")) {
-            return Players.getInstance().getUserdata().getConfig(player).getString("display-name");
-        }
-        if (params.equals("vanished")) {
-            return String.valueOf(Players.getInstance().getUserdata().isVanished(player));
-        }
-        if (params.equals("online_players")) {
-            return String.valueOf(player.getServer().getOnlinePlayers().size() - Players.getInstance().getUserdata().getVanished().size());
+        } else {
+            if (params.equals("name")) {
+                return Players.getInstance().getUserdata().getConfig(player).getString("name");
+            }
+            if (params.equals("display-name")) {
+                return Players.getInstance().getUserdata().getConfig(player).getString("display-name");
+            }
+            if (params.equals("vanished")) {
+                return String.valueOf(Players.getInstance().getUserdata().isVanished(player));
+            }
+            if (params.equals("online_players")) {
+                return String.valueOf(player.getServer().getOnlinePlayers().size() - Players.getInstance().getUserdata().getVanished().size());
+            }
+            if (params.equals("account")) {
+                Economy economy = Players.getInstance().getEconomy();
+                return economy.getCurrency()+economy.getFormat(economy.getEconomy(player));
+            }
         }
         return super.onPlaceholderRequest(player, params);
     }

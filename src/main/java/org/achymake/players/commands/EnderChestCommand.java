@@ -2,7 +2,6 @@ package org.achymake.players.commands;
 
 import org.achymake.players.Players;
 import org.achymake.players.data.Message;
-import org.achymake.players.data.Userdata;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

@@ -2,6 +2,7 @@ package org.achymake.players.commands;
 
 import org.achymake.players.Players;
 import org.achymake.players.data.Userdata;
+import org.bukkit.Server;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
@@ -10,8 +11,10 @@ import java.util.List;
 
 public class BackCommand implements CommandExecutor, TabCompleter {
     private final Userdata userdata;
+    private final Server server;
     public BackCommand(Players plugin) {
         userdata = plugin.getUserdata();
+        server = plugin.getServer();
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -27,7 +30,7 @@ public class BackCommand implements CommandExecutor, TabCompleter {
                 }
                 if (args.length == 1) {
                     if (player.hasPermission("players.command.back.others")) {
-                        Player target = player.getServer().getPlayerExact(args[0]);
+                        Player target = server.getPlayerExact(args[0]);
                         if (target != null) {
                             if (target == player) {
                                 userdata.teleportBack(target);
@@ -41,9 +44,9 @@ public class BackCommand implements CommandExecutor, TabCompleter {
                 }
             }
         }
-        if (sender instanceof ConsoleCommandSender consoleCommandSender) {
+        if (sender instanceof ConsoleCommandSender) {
             if (args.length == 1) {
-                Player target = consoleCommandSender.getServer().getPlayerExact(args[0]);
+                Player target = server.getPlayerExact(args[0]);
                 if (userdata.isFrozen(target) || userdata.isJailed(target)) {
                     return false;
                 } else {
@@ -61,7 +64,7 @@ public class BackCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 if (player.hasPermission("players.command.back.others")) {
-                    for (Player players : player.getServer().getOnlinePlayers()) {
+                    for (Player players : server.getOnlinePlayers()) {
                         if (!players.hasPermission("players.command.back.exempt")) {
                             commands.add(players.getName());
                         }

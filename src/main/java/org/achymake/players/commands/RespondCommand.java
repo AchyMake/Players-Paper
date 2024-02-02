@@ -26,9 +26,6 @@ public class RespondCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (args.length == 0) {
-                message.send(player, "&cUsage:&f /r message");
-            }
             if (!userdata.isMuted(player)) {
                 if (args.length > 0) {
                     if (userdata.getConfig(player).isString("last-whisper")) {

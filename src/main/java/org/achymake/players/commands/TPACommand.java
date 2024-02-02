@@ -30,10 +30,6 @@ public class TPACommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
-            if (args.length == 0) {
-                Player player = (Player) sender;
-                message.send(player, "&cUsage:&f /tpa target");
-            }
             if (args.length == 1) {
                 Player player = (Player) sender;
                 if (userdata.isFrozen(player) || userdata.isJailed(player)) {

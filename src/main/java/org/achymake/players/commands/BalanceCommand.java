@@ -6,6 +6,7 @@ import org.achymake.players.data.Message;
 import org.achymake.players.data.Userdata;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Server;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
@@ -16,10 +17,12 @@ public class BalanceCommand implements CommandExecutor, TabCompleter {
     private final Userdata userdata;
     private final Economy economy;
     private final Message message;
+    private final Server server;
     public BalanceCommand(Players plugin) {
         userdata = plugin.getUserdata();
         economy = plugin.getEconomy();
         message = plugin.getMessage();
+        server = plugin.getServer();
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -56,7 +59,7 @@ public class BalanceCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 if (player.hasPermission("players.command.balance.others")) {
-                    for (OfflinePlayer offlinePlayer : player.getServer().getOfflinePlayers()) {
+                    for (OfflinePlayer offlinePlayer : server.getOfflinePlayers()) {
                         if (userdata.exist(offlinePlayer)) {
                             commands.add(offlinePlayer.getName());
                         }

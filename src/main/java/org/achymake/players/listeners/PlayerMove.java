@@ -22,7 +22,7 @@ public class PlayerMove implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
-        if (event.hasChangedOrientation())return;
+        if (!event.hasChangedPosition())return;
         if (userdata.isFrozen(player)) {
             event.setCancelled(true);
         } else if (userdata.isVanished(player)) {

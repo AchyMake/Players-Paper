@@ -2,6 +2,7 @@ package org.achymake.players.data;
 
 import org.achymake.players.Players;
 import org.bukkit.Location;
+import org.bukkit.Server;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -11,21 +12,19 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 public class Jail {
-    private final Players plugin;
-    private File getDataFolder() {
-        return plugin.getDataFolder();
-    }
-    private Message getMessage() {
-        return plugin.getMessage();
-    }
+    private final File dataFolder;
+    private final Message message;
+    private final Server server;
     public Jail(Players plugin) {
-        this.plugin = plugin;
+        dataFolder = plugin.getDataFolder();
+        message = plugin.getMessage();
+        server = plugin.getServer();
     }
     public boolean exist() {
         return getFile().exists();
     }
     public File getFile() {
-        return new File(getDataFolder(), "jail.yml");
+        return new File(dataFolder, "jail.yml");
     }
     public FileConfiguration getConfig() {
         return YamlConfiguration.loadConfiguration(getFile());
@@ -45,7 +44,7 @@ public class Jail {
         try {
             config.save(file);
         } catch (IOException e) {
-            getMessage().sendLog(Level.WARNING, e.getMessage());
+            message.sendLog(Level.WARNING, e.getMessage());
         }
     }
     public Location getLocation() {
@@ -56,7 +55,7 @@ public class Jail {
             double z = getConfig().getDouble("jail.z");
             float yaw = getConfig().getLong("jail.yaw");
             float pitch = getConfig().getLong("jail.pitch");
-            return new Location(Players.getInstance().getServer().getWorld(world), x, y, z, yaw, pitch);
+            return new Location(server.getWorld(world), x, y, z, yaw, pitch);
         } else {
             return null;
         }
@@ -68,7 +67,7 @@ public class Jail {
             try {
                 config.load(file);
             } catch (IOException | InvalidConfigurationException e) {
-                getMessage().sendLog(Level.WARNING, e.getMessage());
+                message.sendLog(Level.WARNING, e.getMessage());
             }
         } else {
             File file = getFile();
@@ -77,7 +76,7 @@ public class Jail {
             try {
                 config.save(file);
             } catch (IOException e) {
-                getMessage().sendLog(Level.WARNING, e.getMessage());
+                message.sendLog(Level.WARNING, e.getMessage());
             }
         }
     }

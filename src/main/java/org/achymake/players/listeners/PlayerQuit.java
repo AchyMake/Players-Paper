@@ -56,7 +56,7 @@ public class PlayerQuit implements Listener {
             }
             userdata.resetTabList();
         }
-        discord.send(player.getName(), event.getQuitMessage());
+        discord.send(player.getName(), "Left the Server");
     }
     private String quitMessage(Player player) {
         return message.addColor(MessageFormat.format(config.getString("connection.quit.message"), player.getName()));

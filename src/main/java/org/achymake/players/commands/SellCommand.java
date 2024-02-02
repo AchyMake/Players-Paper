@@ -35,10 +35,10 @@ public class SellCommand implements CommandExecutor, TabCompleter {
                     message.send(player, "&cYou have to hold an item");
                 } else {
                     if (worth.isSellable(itemStack.getType())) {
-                        double value = worth.getWorth(itemStack.getType()) * itemStack.getAmount();
+                        double value = worth.getWorth(itemStack.getType());
                         economy.addEconomy(player, value);
-                        message.send(player, "&6You sold all&f " + itemStack.getType() + "&6 for each&a " + economy.getCurrency() + economy.getFormat(worth.getWorth(itemStack.getType())));
-                        itemStack.setAmount(0);
+                        message.send(player, "&6You sold&f 1 " + itemStack.getType() + "&6 for&a " + economy.getCurrency() + economy.getFormat(worth.getWorth(itemStack.getType())));
+                        itemStack.setAmount(itemStack.getAmount() - 1);
                     } else {
                         message.send(player, itemStack.getType() + "&c is not able to sell");
                     }
@@ -52,7 +52,7 @@ public class SellCommand implements CommandExecutor, TabCompleter {
                             if (worth.isSellable(itemStack.getType())) {
                                 double value = worth.getWorth(itemStack.getType()) * itemStack.getAmount();
                                 economy.addEconomy(player, value);
-                                message.send(player, "&6You sold all&f " + itemStack.getType() + "&6 for each&a " + economy.getCurrency() + economy.getFormat(worth.getWorth(itemStack.getType())));
+                                message.send(player, "&6You sold&f " + itemStack.getAmount() + " " + itemStack.getType() + "&6 for&a " + economy.getCurrency() + economy.getFormat(worth.getWorth(itemStack.getType()) * itemStack.getAmount()));
                                 itemStack.setAmount(0);
                             } else {
                                 message.send(player, itemStack.getType() + "&c is not able to sell");
@@ -67,7 +67,7 @@ public class SellCommand implements CommandExecutor, TabCompleter {
                         if (worth.isSellable(itemStack.getType())) {
                             double value = worth.getWorth(itemStack.getType()) * itemStack.getAmount();
                             economy.addEconomy(player, value);
-                            message.send(player, "&6You sold all&f " + itemStack.getType() + "&6 for each&a " + economy.getCurrency() + economy.getFormat(worth.getWorth(itemStack.getType())));
+                            message.send(player, "&6You sold&f " + itemStack.getAmount() + " " + itemStack.getType() + "&6 for&a " + economy.getCurrency() + economy.getFormat(worth.getWorth(itemStack.getType()) * itemStack.getAmount()));
                             itemStack.setAmount(0);
                         } else {
                             message.send(player, itemStack.getType() + "&c is not able to sell");
@@ -84,7 +84,7 @@ public class SellCommand implements CommandExecutor, TabCompleter {
                                 double value = worth.getWorth(itemStack.getType()) * amount;
                                 int newAmount = itemStack.getAmount() - amount;
                                 economy.addEconomy(player, value);
-                                message.send(player, "&6You sold&f " + amount + " " + itemStack.getType() + " for each&a " + economy.getCurrency() + economy.getFormat(value));
+                                message.send(player, "&6You sold&f " + amount + " " + itemStack.getType() + " for&a " + economy.getCurrency() + economy.getFormat(value));
                                 itemStack.setAmount(newAmount);
                             } else {
                                 message.send(player, "&cYou don't have enough&f " + itemStack.getType());

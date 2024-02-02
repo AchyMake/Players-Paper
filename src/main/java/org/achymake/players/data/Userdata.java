@@ -166,8 +166,8 @@ public class Userdata {
         }
     }
     public boolean hasCooldown(Player player, String command) {
-        if (commandCooldown.containsKey(command + "-" + player.getUniqueId())) {
-            Long timeElapsed = System.currentTimeMillis() - commandCooldown.get(command + "-" + player.getUniqueId());
+        if (getCommandCooldown().containsKey(command + "-" + player.getUniqueId())) {
+            Long timeElapsed = System.currentTimeMillis() - getCommandCooldown().get(command + "-" + player.getUniqueId());
             String cooldownTimer = config.getString("commands.cooldown." + command);
             Integer integer = Integer.valueOf(cooldownTimer.replace(cooldownTimer, cooldownTimer + "000"));
             return timeElapsed < integer;
@@ -176,20 +176,20 @@ public class Userdata {
         }
     }
     public void addCooldown(Player player, String command) {
-        if (commandCooldown.containsKey(command + "-" + player.getUniqueId())) {
-            Long timeElapsed = System.currentTimeMillis() - commandCooldown.get(command + "-" + player.getUniqueId());
+        if (getCommandCooldown().containsKey(command + "-" + player.getUniqueId())) {
+            Long timeElapsed = System.currentTimeMillis() - getCommandCooldown().get(command + "-" + player.getUniqueId());
             String cooldownTimer = config.getString("commands.cooldown." + command);
             Integer integer = Integer.valueOf(cooldownTimer.replace(cooldownTimer, cooldownTimer + "000"));
             if (timeElapsed > integer) {
-                commandCooldown.put(command + "-" + player.getUniqueId(), System.currentTimeMillis());
+                getCommandCooldown().put(command + "-" + player.getUniqueId(), System.currentTimeMillis());
             }
         } else {
-            commandCooldown.put(command + "-" + player.getUniqueId(), System.currentTimeMillis());
+            getCommandCooldown().put(command + "-" + player.getUniqueId(), System.currentTimeMillis());
         }
     }
     public String getCooldown(Player player, String command) {
-        if (commandCooldown.containsKey(command + "-" + player.getUniqueId())) {
-            Long timeElapsed = System.currentTimeMillis() - commandCooldown.get(command + "-" + player.getUniqueId());
+        if (getCommandCooldown().containsKey(command + "-" + player.getUniqueId())) {
+            Long timeElapsed = System.currentTimeMillis() - getCommandCooldown().get(command + "-" + player.getUniqueId());
             String cooldownTimer = config.getString("commands.cooldown." + command);
             Integer integer = Integer.valueOf(cooldownTimer.replace(cooldownTimer, cooldownTimer + "000"));
             if (timeElapsed < integer) {
@@ -273,7 +273,7 @@ public class Userdata {
         return new Location(server.getWorld(worldName), x, y, z, yaw, pitch);
     }
     public void hideVanished(Player player) {
-        for (Player vanished : vanished) {
+        for (Player vanished : getVanished()) {
             player.hidePlayer(plugin, vanished);
         }
     }
@@ -431,6 +431,9 @@ public class Userdata {
                 }
             }
         }
+    }
+    public void sendUpdate(Player player) {
+        plugin.sendUpdate(player);
     }
     public HashMap<String, Long> getCommandCooldown() {
         return commandCooldown;

@@ -6,16 +6,18 @@ import org.achymake.players.commands.*;
 import org.achymake.players.data.*;
 import org.achymake.players.listeners.*;
 import org.achymake.players.net.Discord;
-import org.achymake.players.net.UpdateChecker;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Scanner;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 public final class Players extends JavaPlugin {
@@ -30,13 +32,11 @@ public final class Players extends JavaPlugin {
     private static Message message;
     private static VaultEconomyProvider vaultEconomyProvider;
     private static PluginManager pluginManager;
-    private static UpdateChecker updateChecker;
     private static Discord discord;
     @Override
     public void onEnable() {
         instance = this;
         message = new Message(this);
-        discord = new Discord(this);
         userdata = new Userdata(this);
         economy = new Economy(this);
         jail = new Jail(this);
@@ -44,29 +44,20 @@ public final class Players extends JavaPlugin {
         spawn = new Spawn(this);
         warps = new Warps(this);
         worth = new Worth(this);
+        reload();
+        discord = new Discord(this);
         pluginManager = getServer().getPluginManager();
-        updateChecker = new UpdateChecker(this);
-        if (getServer().getPluginManager().isPluginEnabled("Vault")) {
-            vaultEconomyProvider = new VaultEconomyProvider(this);
-            getServer().getServicesManager().register(net.milkbowl.vault.economy.Economy.class, getEconomyProvider(), this, ServicePriority.Normal);
-            getMessage().sendLog(Level.INFO, "Hooked to 'Vault'");
-        } else {
+        if (isVaultDisable()) {
             getServer().getPluginManager().disablePlugin(this);
-            getMessage().sendLog(Level.WARNING, "You have to install 'Vault'");
         }
-        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            new PlaceholderProvider().register();
-            getMessage().sendLog(Level.INFO, "Hooked to 'PlaceholderAPI'");
-        } else {
-            getServer().getPluginManager().disablePlugin(this);
-            getMessage().sendLog(Level.WARNING, "You have to install 'PlaceholderAPI'");
+        if (isPlaceholderAPIDisable()) {
+            getPluginManager().disablePlugin(this);
         }
         registerCommands();
-        registerListeners();
-        reload();
+        registerEvents();
         getDiscord().send(getServer().getVersion(), "Server has Started");
         getMessage().sendLog(Level.INFO, "Enabled " + getDescription().getName() + " " + getDescription().getVersion());
-        getUpdateChecker().sendUpdate();
+        sendUpdate();
     }
     @Override
     public void onDisable() {
@@ -135,7 +126,7 @@ public final class Players extends JavaPlugin {
         getCommand("workbench").setExecutor(new WorkbenchCommand(this));
         getCommand("worth").setExecutor(new WorthCommand(this));
     }
-    private void registerListeners() {
+    private void registerEvents() {
         getPluginManager().registerEvents(new AsyncPlayerChat(this), this);
         getPluginManager().registerEvents(new BlockBreak(this), this);
         getPluginManager().registerEvents(new BlockFertilize(this), this);
@@ -162,6 +153,27 @@ public final class Players extends JavaPlugin {
         getPluginManager().registerEvents(new PrepareAnvil(this), this);
         getPluginManager().registerEvents(new SignChange(this), this);
     }
+    private boolean isVaultDisable() {
+        if (getServer().getPluginManager().isPluginEnabled("Vault")) {
+            vaultEconomyProvider = new VaultEconomyProvider(this);
+            getServer().getServicesManager().register(net.milkbowl.vault.economy.Economy.class, getEconomyProvider(), this, ServicePriority.Normal);
+            getMessage().sendLog(Level.INFO, "Hooked to 'Vault'");
+            return false;
+        } else {
+            getMessage().sendLog(Level.WARNING, "You have to install 'Vault'");
+            return true;
+        }
+    }
+    private boolean isPlaceholderAPIDisable() {
+        if (getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            new PlaceholderProvider().register();
+            getMessage().sendLog(Level.INFO, "Hooked to 'PlaceholderAPI'");
+            return false;
+        } else {
+            getMessage().sendLog(Level.WARNING, "You have to install 'PlaceholderAPI'");
+            return true;
+        }
+    }
     public void reload() {
         File file = new File(getDataFolder(), "config.yml");
         if (file.exists()) {
@@ -187,8 +199,53 @@ public final class Players extends JavaPlugin {
         getUserdata().reload(getServer().getOfflinePlayers());
         getUserdata().resetTabList();
     }
-    public UpdateChecker getUpdateChecker() {
-        return updateChecker;
+    public void sendUpdate() {
+        getServer().getScheduler().runTaskAsynchronously(this, new Runnable() {
+            @Override
+            public void run() {
+                if (notifyUpdate()) {
+                    getLatest((latest) -> {
+                        getMessage().sendLog(Level.INFO, "Checking latest release");
+                        if (getDescription().getVersion().equals(latest)) {
+                            getMessage().sendLog(Level.INFO, "You are using the latest version");
+                        } else {
+                            getMessage().sendLog(Level.INFO, "New Update: " + latest);
+                            getMessage().sendLog(Level.INFO, "Current Version: " + getDescription().getVersion());
+                        }
+                    });
+                }
+            }
+        });
+    }
+    public void sendUpdate(Player player) {
+        if (notifyUpdate()) {
+            if (player.hasPermission("players.event.join.update")) {
+                getLatest((latest) -> {
+                    if (!getDescription().getVersion().equals(latest)) {
+                        message.send(player,"&6" + getDescription().getName() + " Update:&f " + latest);
+                        message.send(player,"&6Current Version: &f" + getDescription().getVersion());
+                    }
+                });
+            }
+        }
+    }
+    public void getLatest(Consumer<String> consumer) {
+        try {
+            InputStream inputStream = (new URL("https://api.spigotmc.org/legacy/update.php?resource=" + 114855)).openStream();
+            Scanner scanner = new Scanner(inputStream);
+            if (scanner.hasNext()) {
+                consumer.accept(scanner.next());
+                scanner.close();
+            }
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        } catch (IOException e) {
+            getMessage().sendLog(Level.WARNING, e.getMessage());
+        }
+    }
+    public boolean notifyUpdate() {
+        return getConfig().getBoolean("notify-update");
     }
     public PluginManager getPluginManager() {
         return pluginManager;

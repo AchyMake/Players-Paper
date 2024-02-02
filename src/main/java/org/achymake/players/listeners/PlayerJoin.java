@@ -19,10 +19,8 @@ public class PlayerJoin implements Listener {
     private final Userdata userdata;
     private final Message message;
     private final Server server;
-    private final UpdateChecker updateChecker;
     private final Discord discord;
     public PlayerJoin(Players plugin) {
-        updateChecker = plugin.getUpdateChecker();
         config = plugin.getConfig();
         userdata = plugin.getUserdata();
         message = plugin.getMessage();
@@ -56,8 +54,8 @@ public class PlayerJoin implements Listener {
             }
             userdata.resetTabList();
         }
-        updateChecker.sendUpdate(player);
-        discord.send(player.getName(), event.getJoinMessage());
+        userdata.sendUpdate(player);
+        discord.send(player.getName(), "Joined the Server");
     }
     private String joinMessage(Player player) {
         return message.addColor(MessageFormat.format(config.getString("connection.join.message"), player.getName()));

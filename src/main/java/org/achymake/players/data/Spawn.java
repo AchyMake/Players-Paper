@@ -12,27 +12,19 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 public class Spawn {
-    private final Players plugin;
-    private Userdata getUserdata() {
-        return plugin.getUserdata();
-    }
-    private File getDataFolder() {
-        return plugin.getDataFolder();
-    }
-    private Message getMessage() {
-        return plugin.getMessage();
-    }
-    private Server getHost() {
-        return plugin.getServer();
-    }
+    private final File dataFolder;
+    private final Message message;
+    private final Server server;
     public Spawn(Players plugin) {
-        this.plugin = plugin;
+        dataFolder = plugin.getDataFolder();
+        message = plugin.getMessage();
+        server = plugin.getServer();
     }
     public boolean exist() {
         return getFile().exists();
     }
     private File getFile() {
-        return new File(getDataFolder(), "spawn.yml");
+        return new File(dataFolder, "spawn.yml");
     }
     public FileConfiguration getConfig() {
         return YamlConfiguration.loadConfiguration(getFile());
@@ -52,7 +44,7 @@ public class Spawn {
         try {
             config.save(file);
         } catch (IOException e) {
-            getMessage().sendLog(Level.WARNING, e.getMessage());
+            message.sendLog(Level.WARNING, e.getMessage());
         }
     }
     public Location getLocation() {
@@ -63,7 +55,7 @@ public class Spawn {
             double z = getConfig().getDouble("spawn.z");
             float yaw = getConfig().getLong("spawn.yaw");
             float pitch = getConfig().getLong("spawn.pitch");
-            return new Location(getHost().getWorld(worldName), x, y, z, yaw, pitch);
+            return new Location(server.getWorld(worldName), x, y, z, yaw, pitch);
         } else {
             return null;
         }
@@ -75,14 +67,14 @@ public class Spawn {
             try {
                 config.load(file);
             } catch (IOException | InvalidConfigurationException e) {
-                getMessage().sendLog(Level.WARNING, e.getMessage());
+                message.sendLog(Level.WARNING, e.getMessage());
             }
         } else {
             config.options().copyDefaults(true);
             try {
                 config.save(file);
             } catch (IOException e) {
-                getMessage().sendLog(Level.WARNING, e.getMessage());
+                message.sendLog(Level.WARNING, e.getMessage());
             }
         }
     }

@@ -11,20 +11,21 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
-public class Jail {
-    private final File dataFolder;
-    private final Message message;
-    private final Server server;
-    public Jail(Players plugin) {
-        dataFolder = plugin.getDataFolder();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+public record Jail(Players plugin) {
+    private File getDataFolder() {
+        return plugin.getDataFolder();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
     }
     public boolean exist() {
         return getFile().exists();
     }
     public File getFile() {
-        return new File(dataFolder, "jail.yml");
+        return new File(getDataFolder(), "jail.yml");
     }
     public FileConfiguration getConfig() {
         return YamlConfiguration.loadConfiguration(getFile());
@@ -44,7 +45,7 @@ public class Jail {
         try {
             config.save(file);
         } catch (IOException e) {
-            message.sendLog(Level.WARNING, e.getMessage());
+            getMessage().sendLog(Level.WARNING, e.getMessage());
         }
     }
     public Location getLocation() {
@@ -55,28 +56,26 @@ public class Jail {
             double z = getConfig().getDouble("jail.z");
             float yaw = getConfig().getLong("jail.yaw");
             float pitch = getConfig().getLong("jail.pitch");
-            return new Location(server.getWorld(world), x, y, z, yaw, pitch);
+            return new Location(getServer().getWorld(world), x, y, z, yaw, pitch);
         } else {
             return null;
         }
     }
     public void reload() {
+        File file = getFile();
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         if (exist()) {
-            File file = getFile();
-            FileConfiguration config = YamlConfiguration.loadConfiguration(file);
             try {
                 config.load(file);
             } catch (IOException | InvalidConfigurationException e) {
-                message.sendLog(Level.WARNING, e.getMessage());
+                getMessage().sendLog(Level.WARNING, e.getMessage());
             }
         } else {
-            File file = getFile();
-            FileConfiguration config = YamlConfiguration.loadConfiguration(file);
             config.options().copyDefaults(true);
             try {
                 config.save(file);
             } catch (IOException e) {
-                message.sendLog(Level.WARNING, e.getMessage());
+                getMessage().sendLog(Level.WARNING, e.getMessage());
             }
         }
     }

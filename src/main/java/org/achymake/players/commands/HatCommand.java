@@ -13,9 +13,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class HatCommand implements CommandExecutor, TabCompleter {
-    private final Message message;
+    private final Players plugin;
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
     public HatCommand(Players plugin) {
-        message = plugin.getMessage();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -24,15 +27,15 @@ public class HatCommand implements CommandExecutor, TabCompleter {
                 ItemStack heldItem = player.getInventory().getItemInMainHand();
                 if (!heldItem.getType().isAir()) {
                     if (player.getInventory().getHelmet() == null) {
-                        message.send(player, "&6You are now wearing&f " + heldItem.getType());
+                        getMessage().send(player, "&6You are now wearing&f " + heldItem.getType());
                         ItemStack itemStack = new ItemStack(heldItem.getType(), 1);
                         player.getInventory().setHelmet(itemStack);
                         heldItem.setAmount(heldItem.getAmount() - 1);
                     } else {
-                        message.send(player, "&cYou are already wearing&f " + player.getInventory().getHelmet().getType());
+                        getMessage().send(player, "&cYou are already wearing&f " + player.getInventory().getHelmet().getType());
                     }
                 } else {
-                    message.send(player, "&cYou have to hold an item");
+                    getMessage().send(player, "&cYou have to hold an item");
                 }
             }
         }

@@ -11,61 +11,66 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class KitCommand implements CommandExecutor, TabCompleter {
-    private final Kits kits;
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Kits getKits() {
+        return plugin.getKits();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public KitCommand(Players plugin) {
-        kits = plugin.getKits();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 0) {
-                message.send(player, "&6Kits:");
-                for (String kitNames : kits.getKits()) {
+                getMessage().send(player, "&6Kits:");
+                for (String kitNames : getKits().getKits()) {
                     if (player.hasPermission("players.command.kit." + kitNames)) {
-                        message.send(player, "- " + kitNames);
+                        getMessage().send(player, "- " + kitNames);
                     }
                 }
             }
             if (args.length == 1) {
                 String kitName = args[0].toLowerCase();
                 if (player.hasPermission("players.command.kit." + kitName)) {
-                    if (kits.hasCooldown(player, kitName)) {
-                        message.sendActionBar(player, "&cYou have to wait&f " + kits.getCooldown(player, kitName) + "&c seconds");
+                    if (getKits().hasCooldown(player, kitName)) {
+                        getMessage().sendActionBar(player, "&cYou have to wait&f " + getKits().getCooldown(player, kitName) + "&c seconds");
                     } else {
-                        kits.addCooldown(player, kitName);
-                        message.send(player, "&6You received&f " + kitName);
-                        kits.giveKit(player, kitName);
+                        getKits().addCooldown(player, kitName);
+                        getMessage().send(player, "&6You received&f " + kitName);
+                        getKits().giveKit(player, kitName);
                     }
                 }
             }
             if (args.length == 2) {
                 if (player.hasPermission("players.command.kit.others")) {
-                    Player target = server.getPlayerExact(args[1]);
+                    Player target = getServer().getPlayerExact(args[1]);
                     if (target != null) {
-                        kits.giveKit(target, args[0]);
-                        message.send(target, "&6You received&f " + args[0] + "&6 kit");
-                        message.send(player, "&6You dropped&f " + args[0] + "&6 kit to&f " + target.getName());
+                        getKits().giveKit(target, args[0]);
+                        getMessage().send(target, "&6You received&f " + args[0] + "&6 kit");
+                        getMessage().send(player, "&6You dropped&f " + args[0] + "&6 kit to&f " + target.getName());
                     }
                 }
             }
         }
         if (sender instanceof ConsoleCommandSender consoleCommandSender) {
             if (args.length == 0) {
-                message.send(consoleCommandSender, "Kits:");
-                for (String kitNames : kits.getKits()) {
-                    message.send(consoleCommandSender, "- " + kitNames);
+                getMessage().send(consoleCommandSender, "Kits:");
+                for (String kitNames : getKits().getKits()) {
+                    getMessage().send(consoleCommandSender, "- " + kitNames);
                 }
             }
             if (args.length == 2) {
-                Player target = server.getPlayerExact(args[1]);
+                Player target = getServer().getPlayerExact(args[1]);
                 if (target != null) {
-                    kits.giveKit(target, args[0]);
-                    message.send(target, "&6You received&f " + args[0] + "&6 kit");
-                    message.send(consoleCommandSender, "You dropped " + args[0] + " kit to " + target.getName());
+                    getKits().giveKit(target, args[0]);
+                    getMessage().send(target, "&6You received&f " + args[0] + "&6 kit");
+                    getMessage().send(consoleCommandSender, "You dropped " + args[0] + " kit to " + target.getName());
                 }
             }
         }
@@ -76,7 +81,7 @@ public class KitCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player player) {
             if (args.length == 1) {
-                for (String kitName : kits.getKits()) {
+                for (String kitName : getKits().getKits()) {
                     if (player.hasPermission("players.command.kit." + kitName)) {
                         commands.add(kitName);
                     }
@@ -84,7 +89,7 @@ public class KitCommand implements CommandExecutor, TabCompleter {
             }
             if (args.length == 2) {
                 if (player.hasPermission("players.command.kit.others")) {
-                    for (Player players : server.getOnlinePlayers()) {
+                    for (Player players : getServer().getOnlinePlayers()) {
                         commands.add(players.getName());
                     }
                 }

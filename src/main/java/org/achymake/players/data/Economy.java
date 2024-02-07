@@ -6,32 +6,35 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.text.DecimalFormat;
 
-public class Economy {
-    private final Userdata userdata;
-    private final FileConfiguration config;
-    public Economy(Players plugin) {
-        userdata = plugin.getUserdata();
-        config = plugin.getConfig();
+public record Economy(Players plugin) {
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
     }
-    public double getEconomy(OfflinePlayer offlinePlayer) {
-        return userdata.getConfig(offlinePlayer).getDouble("account");
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
     }
-    public void addEconomy(OfflinePlayer offlinePlayer, double amount) {
-        userdata.setDouble(offlinePlayer, "account", amount + getEconomy(offlinePlayer));
+    public double get(OfflinePlayer offlinePlayer) {
+        return getUserdata().getConfig(offlinePlayer).getDouble("account");
     }
-    public void removeEconomy(OfflinePlayer offlinePlayer, double amount) {
-        userdata.setDouble(offlinePlayer, "account", getEconomy(offlinePlayer) - amount);
+    public boolean has(OfflinePlayer offlinePlayer, double amount) {
+        return get(offlinePlayer) >= amount;
     }
-    public void setEconomy(OfflinePlayer offlinePlayer, double value) {
-        userdata.setDouble(offlinePlayer, "account", value);
+    public void add(OfflinePlayer offlinePlayer, double amount) {
+        getUserdata().setDouble(offlinePlayer, "account", amount + get(offlinePlayer));
     }
-    public void resetEconomy(OfflinePlayer offlinePlayer) {
-        userdata.setDouble(offlinePlayer, "account", config.getDouble("economy.starting-balance"));
+    public void remove(OfflinePlayer offlinePlayer, double amount) {
+        getUserdata().setDouble(offlinePlayer, "account", get(offlinePlayer) - amount);
     }
-    public String getFormat(double amount) {
-        return new DecimalFormat(config.getString("economy.format")).format(amount);
+    public void set(OfflinePlayer offlinePlayer, double value) {
+        getUserdata().setDouble(offlinePlayer, "account", value);
     }
-    public String getCurrency() {
-        return config.getString("economy.currency");
+    public void reset(OfflinePlayer offlinePlayer) {
+        getUserdata().setDouble(offlinePlayer, "account", getConfig().getDouble("economy.starting-balance"));
+    }
+    public String format(double amount) {
+        return new DecimalFormat(getConfig().getString("economy.format")).format(amount);
+    }
+    public String currency() {
+        return getConfig().getString("economy.currency");
     }
 }

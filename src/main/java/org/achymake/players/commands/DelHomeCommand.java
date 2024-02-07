@@ -13,21 +13,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DelHomeCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Message message;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
     public DelHomeCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 1) {
-                if (userdata.homeExist(player, args[0])) {
-                    userdata.setString(player, "homes." + args[0], null);
-                    message.send(player, args[0] + "&6 has been deleted");
+                if (getUserdata().homeExist(player, args[0])) {
+                    getUserdata().setString(player, "homes." + args[0], null);
+                    getMessage().send(player, args[0] + "&6 has been deleted");
                 } else {
-                    message.send(player, args[0] + "&c does not exist");
+                    getMessage().send(player, args[0] + "&c does not exist");
                 }
             }
         }
@@ -38,7 +42,7 @@ public class DelHomeCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player player) {
             if (args.length == 1) {
-                commands.addAll(userdata.getHomes(player));
+                commands.addAll(getUserdata().getHomes(player));
             }
         }
         return commands;

@@ -14,55 +14,53 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 
-public class Userdata {
-    private final Players plugin;
-    private final File dataFolder;
-    private final FileConfiguration config;
-    private final Message message;
-    private final Server server;
-    private final BukkitScheduler scheduler = Bukkit.getScheduler();
-    private final List<Player> vanished = new ArrayList<>();
-    private final HashMap<String, Long> commandCooldown = new HashMap<>();
-    public Userdata(Players plugin) {
-        this.plugin = plugin;
-        dataFolder = plugin.getDataFolder();
-        config = plugin.getConfig();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+public record Userdata(Players plugin) {
+    private File getDataFolder() {
+        return plugin.getDataFolder();
+    }
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
+    private BukkitScheduler getScheduler() {
+        return getServer().getScheduler();
     }
     public boolean exist(OfflinePlayer offlinePlayer) {
-        return new File(dataFolder, "userdata/" + offlinePlayer.getUniqueId() + ".yml").exists();
+        return new File(getDataFolder(), "userdata/" + offlinePlayer.getUniqueId() + ".yml").exists();
     }
     public FileConfiguration getConfig(OfflinePlayer offlinePlayer) {
-        return YamlConfiguration.loadConfiguration(new File(dataFolder, "userdata/" + offlinePlayer.getUniqueId() + ".yml"));
+        return YamlConfiguration.loadConfiguration(new File(getDataFolder(), "userdata/" + offlinePlayer.getUniqueId() + ".yml"));
     }
     public void setup(OfflinePlayer offlinePlayer) {
         if (exist(offlinePlayer)) {
             if (!getConfig(offlinePlayer).getString("name").equals(offlinePlayer.getName())) {
-                File file = new File(dataFolder, "userdata/" + offlinePlayer.getUniqueId() + ".yml");
+                File file = new File(getDataFolder(), "userdata/" + offlinePlayer.getUniqueId() + ".yml");
                 FileConfiguration playerConfig = YamlConfiguration.loadConfiguration(file);
                 playerConfig.set("name", offlinePlayer.getName());
                 try {
                     playerConfig.save(file);
-                    message.sendLog(Level.INFO, offlinePlayer.getName() + " has changed name");
+                    getMessage().sendLog(Level.INFO, offlinePlayer.getName() + " has changed name");
                 } catch (IOException e) {
-                    message.sendLog(Level.WARNING, e.getMessage());
+                    getMessage().sendLog(Level.WARNING, e.getMessage());
                 }
             }
         } else {
-            File file = new File(dataFolder, "userdata/" + offlinePlayer.getUniqueId() + ".yml");
+            File file = new File(getDataFolder(), "userdata/" + offlinePlayer.getUniqueId() + ".yml");
             FileConfiguration playerConfig = YamlConfiguration.loadConfiguration(file);
             playerConfig.set("name", offlinePlayer.getName());
             playerConfig.set("display-name", offlinePlayer.getName());
-            playerConfig.set("account", config.getDouble("economy.starting-balance"));
+            playerConfig.set("account", getConfig().getDouble("economy.starting-balance"));
             playerConfig.set("settings.pvp", true);
             playerConfig.set("settings.frozen", false);
             playerConfig.set("settings.jailed", false);
@@ -70,70 +68,70 @@ public class Userdata {
             playerConfig.createSection("locations");
             try {
                 playerConfig.save(file);
-                message.sendLog(Level.INFO, offlinePlayer.getName() + ".yml has been created");
+                getMessage().sendLog(Level.INFO, offlinePlayer.getName() + ".yml has been created");
             } catch (IOException e) {
-                message.sendLog(Level.WARNING, e.getMessage());
+                getMessage().sendLog(Level.WARNING, e.getMessage());
             }
         }
     }
     public void setInt(OfflinePlayer offlinePlayer, String path, int value) {
-        File file = new File(dataFolder, "userdata/" + offlinePlayer.getUniqueId() + ".yml");
+        File file = new File(getDataFolder(), "userdata/" + offlinePlayer.getUniqueId() + ".yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         config.set(path, value);
         try {
             config.save(file);
         } catch (IOException e) {
-            message.sendLog(Level.WARNING, e.getMessage());
+            getMessage().sendLog(Level.WARNING, e.getMessage());
         }
     }
     public void setDouble(OfflinePlayer offlinePlayer, String path, double value) {
-        File file = new File(dataFolder, "userdata/" + offlinePlayer.getUniqueId() + ".yml");
+        File file = new File(getDataFolder(), "userdata/" + offlinePlayer.getUniqueId() + ".yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         config.set(path, value);
         try {
             config.save(file);
         } catch (IOException e) {
-            message.sendLog(Level.WARNING, e.getMessage());
+            getMessage().sendLog(Level.WARNING, e.getMessage());
         }
     }
     public void setFloat(OfflinePlayer offlinePlayer, String path, float value) {
-        File file = new File(dataFolder, "userdata/" + offlinePlayer.getUniqueId() + ".yml");
+        File file = new File(getDataFolder(), "userdata/" + offlinePlayer.getUniqueId() + ".yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         config.set(path, value);
         try {
             config.save(file);
         } catch (IOException e) {
-            message.sendLog(Level.WARNING, e.getMessage());
+            getMessage().sendLog(Level.WARNING, e.getMessage());
         }
     }
     public void setString(OfflinePlayer offlinePlayer, String path, String value) {
-        File file = new File(dataFolder, "userdata/" + offlinePlayer.getUniqueId() + ".yml");
+        File file = new File(getDataFolder(), "userdata/" + offlinePlayer.getUniqueId() + ".yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         config.set(path, value);
         try {
             config.save(file);
         } catch (IOException e) {
-            message.sendLog(Level.WARNING, e.getMessage());
+            getMessage().sendLog(Level.WARNING, e.getMessage());
         }
     }
     public void setStringList(OfflinePlayer offlinePlayer, String path, List<Object> value) {
-        File file = new File(dataFolder, "userdata/" + offlinePlayer.getUniqueId() + ".yml");
+        File file = new File(getDataFolder(), "userdata/" + offlinePlayer.getUniqueId() + ".yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         config.set(path, value);
         try {
             config.save(file);
         } catch (IOException e) {
-            message.sendLog(Level.WARNING, e.getMessage());
+            getMessage().sendLog(Level.WARNING, e.getMessage());
         }
     }
     public void setBoolean(OfflinePlayer offlinePlayer, String path, boolean value) {
-        File file = new File(dataFolder, "userdata/" + offlinePlayer.getUniqueId() + ".yml");
+        File file = new File(getDataFolder(), "userdata/" + offlinePlayer.getUniqueId() + ".yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         config.set(path, value);
         try {
             config.save(file);
         } catch (IOException e) {
-            message.sendLog(Level.WARNING, e.getMessage());
+            getMessage().sendLog(Level.WARNING, e.getMessage());
         }
     }
     public void addTaskID(Player player, String path, int value) {
@@ -150,25 +148,25 @@ public class Userdata {
     }
     public void teleport(Player player, String string, Location location) {
         if (getConfig(player).isInt("tasks.teleport")) {
-            message.sendActionBar(player, "&cYou cannot teleport twice you have to wait");
+            getMessage().sendActionBar(player, "&cYou cannot teleport twice you have to wait");
         } else {
             location.getChunk().load();
-            message.sendActionBar(player, "&6Teleporting in&f " + config.getInt("teleport.delay") + "&6 seconds");
-            int taskID = scheduler.runTaskLater(plugin, new Runnable() {
+            getMessage().sendActionBar(player, "&6Teleporting in&f " + getConfig().getInt("teleport.delay") + "&6 seconds");
+            int taskID = getScheduler().runTaskLater(plugin, new Runnable() {
                 @Override
                 public void run() {
-                    message.sendActionBar(player, "&6Teleporting to&f " + string);
+                    getMessage().sendActionBar(player, "&6Teleporting to&f " + string);
                     player.teleport(location);
                     setString(player, "tasks.teleport", null);
                 }
-            },config.getInt("teleport.delay") * 20L).getTaskId();
+            },getConfig().getInt("teleport.delay") * 20L).getTaskId();
             setInt(player, "tasks.teleport", taskID);
         }
     }
     public boolean hasCooldown(Player player, String command) {
-        if (getCommandCooldown().containsKey(command + "-" + player.getUniqueId())) {
-            Long timeElapsed = System.currentTimeMillis() - getCommandCooldown().get(command + "-" + player.getUniqueId());
-            String cooldownTimer = config.getString("commands.cooldown." + command);
+        if (plugin.getCommandCooldown().containsKey(command + "-" + player.getUniqueId())) {
+            Long timeElapsed = System.currentTimeMillis() - plugin.getCommandCooldown().get(command + "-" + player.getUniqueId());
+            String cooldownTimer = getConfig().getString("commands.cooldown." + command);
             Integer integer = Integer.valueOf(cooldownTimer.replace(cooldownTimer, cooldownTimer + "000"));
             return timeElapsed < integer;
         } else {
@@ -176,21 +174,21 @@ public class Userdata {
         }
     }
     public void addCooldown(Player player, String command) {
-        if (getCommandCooldown().containsKey(command + "-" + player.getUniqueId())) {
-            Long timeElapsed = System.currentTimeMillis() - getCommandCooldown().get(command + "-" + player.getUniqueId());
-            String cooldownTimer = config.getString("commands.cooldown." + command);
+        if (plugin.getCommandCooldown().containsKey(command + "-" + player.getUniqueId())) {
+            Long timeElapsed = System.currentTimeMillis() - plugin.getCommandCooldown().get(command + "-" + player.getUniqueId());
+            String cooldownTimer = getConfig().getString("commands.cooldown." + command);
             Integer integer = Integer.valueOf(cooldownTimer.replace(cooldownTimer, cooldownTimer + "000"));
             if (timeElapsed > integer) {
-                getCommandCooldown().put(command + "-" + player.getUniqueId(), System.currentTimeMillis());
+                plugin.getCommandCooldown().put(command + "-" + player.getUniqueId(), System.currentTimeMillis());
             }
         } else {
-            getCommandCooldown().put(command + "-" + player.getUniqueId(), System.currentTimeMillis());
+            plugin.getCommandCooldown().put(command + "-" + player.getUniqueId(), System.currentTimeMillis());
         }
     }
     public String getCooldown(Player player, String command) {
-        if (getCommandCooldown().containsKey(command + "-" + player.getUniqueId())) {
-            Long timeElapsed = System.currentTimeMillis() - getCommandCooldown().get(command + "-" + player.getUniqueId());
-            String cooldownTimer = config.getString("commands.cooldown." + command);
+        if (plugin.getCommandCooldown().containsKey(command + "-" + player.getUniqueId())) {
+            Long timeElapsed = System.currentTimeMillis() - plugin.getCommandCooldown().get(command + "-" + player.getUniqueId());
+            String cooldownTimer = getConfig().getString("commands.cooldown." + command);
             Integer integer = Integer.valueOf(cooldownTimer.replace(cooldownTimer, cooldownTimer + "000"));
             if (timeElapsed < integer) {
                 long timer = (integer-timeElapsed);
@@ -217,9 +215,9 @@ public class Userdata {
             setFloat(player, "homes." + homeName + ".pitch", player.getLocation().getPitch());
             return true;
         } else {
-            for (String rank : config.getConfigurationSection("homes").getKeys(false)) {
+            for (String rank : getConfig().getConfigurationSection("homes").getKeys(false)) {
                 if (player.hasPermission("players.command.sethome.multiple." + rank)) {
-                    if (config.getInt("homes." + rank) > getHomes(player).size()) {
+                    if (getConfig().getInt("homes." + rank) > getHomes(player).size()) {
                         setString(player, "homes." + homeName + ".world", player.getWorld().getName());
                         setDouble(player, "homes." + homeName + ".x", player.getLocation().getX());
                         setDouble(player, "homes." + homeName + ".y", player.getLocation().getY());
@@ -242,7 +240,7 @@ public class Userdata {
         double z = getConfig(offlinePlayer).getDouble("homes." + homeName + ".z");
         float yaw = getConfig(offlinePlayer).getLong("homes." + homeName + ".yaw");
         float pitch = getConfig(offlinePlayer).getLong("homes." + homeName + ".pitch");
-        return new Location(server.getWorld(worldName), x, y, z, yaw, pitch);
+        return new Location(getServer().getWorld(worldName), x, y, z, yaw, pitch);
     }
     public boolean locationExist(OfflinePlayer offlinePlayer, String locationName) {
         return getConfig(offlinePlayer).getConfigurationSection("locations").contains(locationName);
@@ -270,10 +268,10 @@ public class Userdata {
         double z = getConfig(offlinePlayer).getDouble("locations." + locationName + ".z");
         float yaw = getConfig(offlinePlayer).getLong("locations." + locationName + ".yaw");
         float pitch = getConfig(offlinePlayer).getLong("locations." + locationName + ".pitch");
-        return new Location(server.getWorld(worldName), x, y, z, yaw, pitch);
+        return new Location(getServer().getWorld(worldName), x, y, z, yaw, pitch);
     }
     public void hideVanished(Player player) {
-        for (Player vanished : getVanished()) {
+        for (Player vanished : plugin.getVanished()) {
             player.hidePlayer(plugin, vanished);
         }
     }
@@ -282,11 +280,11 @@ public class Userdata {
             setBoolean(offlinePlayer,"settings.vanished", true);
             if (offlinePlayer.isOnline()) {
                 Player player = offlinePlayer.getPlayer();
-                getVanished().add(player);
+                plugin.getVanished().add(player);
                 if (getConfig(player).getBoolean("settings.coordinates")) {
                     setBoolean(player, "settings.coordinates", false);
                 }
-                for (Player onlinePlayers : server.getOnlinePlayers()) {
+                for (Player onlinePlayers : getServer().getOnlinePlayers()) {
                     onlinePlayers.hidePlayer(plugin, player);
                 }
                 player.setAllowFlight(true);
@@ -295,19 +293,20 @@ public class Userdata {
                 player.setCollidable(false);
                 player.setSilent(true);
                 player.setCanPickupItems(false);
-                for (Player vanishedPlayers : getVanished()) {
+                for (Player vanishedPlayers : plugin.getVanished()) {
                     vanishedPlayers.showPlayer(plugin, player);
                     player.showPlayer(plugin, vanishedPlayers);
                 }
                 resetTabList();
-                message.sendActionBar(player, "&6&lVanish:&a Enabled");
+                addVanishTask(player);
+                getMessage().sendActionBar(player, "&6&lVanish:&a Enabled");
             }
         } else {
             setBoolean(offlinePlayer,"settings.vanished", false);
             if (offlinePlayer.isOnline()) {
                 Player player = offlinePlayer.getPlayer();
-                getVanished().remove(player);
-                for (Player onlinePlayers : server.getOnlinePlayers()) {
+                plugin.getVanished().remove(player);
+                for (Player onlinePlayers : getServer().getOnlinePlayers()) {
                     onlinePlayers.showPlayer(plugin, player);
                 }
                 if (!player.hasPermission("players.command.fly")) {
@@ -318,59 +317,58 @@ public class Userdata {
                 player.setCollidable(true);
                 player.setSilent(false);
                 player.setCanPickupItems(true);
-                for (Player vanishedPlayers : getVanished()) {
+                for (Player vanishedPlayers : plugin.getVanished()) {
                     player.hidePlayer(plugin, vanishedPlayers);
                 }
+                getServer().getScheduler().cancelTask(getTaskID(player, "vanish"));
                 resetTabList();
-                message.sendActionBar(player, "&6&lVanish:&c Disabled");
+                removeTaskID(player, "vanish");
+                getMessage().sendActionBar(player, "&6&lVanish:&c Disabled");
             }
         }
     }
+    private void addVanishTask(Player player) {
+        int taskID = getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                getMessage().sendActionBar(player, "&6&lVanish:&a Enabled");
+                removeTaskID(player, "vanish");
+                addVanishTask(player);
+            }
+        }, 45).getTaskId();
+        addTaskID(player, "vanish", taskID);
+    }
     public String prefix(Player player) {
         if (PlaceholderAPI.isRegistered("vault")) {
-            return message.addColor(PlaceholderAPI.setPlaceholders(player, "%vault_prefix%"));
+            return getMessage().addColor(PlaceholderAPI.setPlaceholders(player, "%vault_prefix%"));
         } else {
             return "";
         }
     }
     public String getDisplayName(Player player) {
-        return message.addColor(getConfig(player).getString("display-name"));
+        return getMessage().addColor(getConfig(player).getString("display-name"));
     }
     public String suffix(Player player) {
         if (PlaceholderAPI.isRegistered("vault")) {
-            return message.addColor(PlaceholderAPI.setPlaceholders(player, "%vault_suffix%"));
+            return getMessage().addColor(PlaceholderAPI.setPlaceholders(player, "%vault_suffix%"));
         } else {
             return "";
         }
     }
     public void resetTabList() {
-        if (config.getBoolean("tablist.enable")) {
-            for (Player players : server.getOnlinePlayers()) {
-                players.setPlayerListHeader(message.addColor(config.getString("tablist.header")));
+        if (getConfig().getBoolean("tablist.enable")) {
+            for (Player players : getServer().getOnlinePlayers()) {
+                players.setPlayerListHeader(getMessage().addColor(getConfig().getString("tablist.header")));
                 players.setPlayerListName(prefix(players) + getDisplayName(players) + suffix(players));
-                players.setPlayerListFooter(message.addColor(MessageFormat.format(config.getString("tablist.footer"), server.getOnlinePlayers().size() - getVanished().size(), server.getMaxPlayers())));
+                players.setPlayerListFooter(getMessage().addColor(MessageFormat.format(getConfig().getString("tablist.footer"), getServer().getOnlinePlayers().size() - plugin.getVanished().size(), getServer().getMaxPlayers())));
             }
         }
     }
-    public void teleportBack(Player player) {
-        if (locationExist(player, "death")) {
-            getLocation(player, "death").getChunk().load();
-            message.sendActionBar(player, "&6Teleporting to&f death location");
-            player.teleport(getLocation(player, "death"));
-            setString(player, "locations.death", null);
-        } else if (locationExist(player, "recent")) {
-            getLocation(player, "recent").getChunk().load();
-            message.sendActionBar(player, "&6Teleporting to&f recent location");
-            player.teleport(getLocation(player, "recent"));
-        } else {
-            message.send(player, "&cRecent location either removed or has never been set");
-        }
-    }
     public Block highestRandomBlock() {
-        String worldName = config.getString("commands.rtp.world");
-        int x = new Random().nextInt(0, config.getInt("commands.rtp.spread"));
-        int z = new Random().nextInt(0, config.getInt("commands.rtp.spread"));
-        return server.getWorld(worldName).getHighestBlockAt(x, z);
+        String worldName = getConfig().getString("commands.rtp.world");
+        int x = new Random().nextInt(0, getConfig().getInt("commands.rtp.spread"));
+        int z = new Random().nextInt(0, getConfig().getInt("commands.rtp.spread"));
+        return getServer().getWorld(worldName).getHighestBlockAt(x, z);
     }
     public Location randomLocation() {
         Block block = highestRandomBlock();
@@ -422,23 +420,17 @@ public class Userdata {
     public void reload(OfflinePlayer[] offlinePlayers) {
         for (OfflinePlayer offlinePlayer : offlinePlayers) {
             if (exist(offlinePlayer)) {
-                File file = new File(dataFolder, "userdata/" + offlinePlayer.getUniqueId() + ".yml");
+                File file = new File(getDataFolder(), "userdata/" + offlinePlayer.getUniqueId() + ".yml");
                 FileConfiguration config = YamlConfiguration.loadConfiguration(file);
                 try {
                     config.load(file);
                 } catch (IOException | InvalidConfigurationException e) {
-                    message.sendLog(Level.WARNING, e.getMessage());
+                    getMessage().sendLog(Level.WARNING, e.getMessage());
                 }
             }
         }
     }
     public void sendUpdate(Player player) {
         plugin.sendUpdate(player);
-    }
-    public HashMap<String, Long> getCommandCooldown() {
-        return commandCooldown;
-    }
-    public List<Player> getVanished() {
-        return vanished;
     }
 }

@@ -13,22 +13,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryCommand implements CommandExecutor, TabCompleter {
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public InventoryCommand(Players plugin) {
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 1) {
-                Player target = server.getPlayerExact(args[0]);
+                Player target = getServer().getPlayerExact(args[0]);
                 if (target != null) {
                     if (target != player) {
                         if (!target.hasPermission("players.command.inventory.exempt")) {
                             player.openInventory(target.getInventory());
-                            message.send(player, "&6Opened inventory of " + target.getName());
+                            getMessage().send(player, "&6Opened inventory of " + target.getName());
                         }
                     }
                 }
@@ -42,7 +46,7 @@ public class InventoryCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 if (player.hasPermission("players.command.inventory")) {
-                    for (Player players : server.getOnlinePlayers()) {
+                    for (Player players : getServer().getOnlinePlayers()) {
                         if (!players.hasPermission("players.command.inventory.exempt")) {
                             commands.add(players.getName());
                         }

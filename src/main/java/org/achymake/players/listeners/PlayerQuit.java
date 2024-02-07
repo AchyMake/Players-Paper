@@ -19,31 +19,37 @@ import org.bukkit.scheduler.BukkitScheduler;
 import java.text.MessageFormat;
 import java.util.UUID;
 
-public class PlayerQuit implements Listener {
-    private final FileConfiguration config;
-    private final Userdata userdata;
-    private final Message message;
-    private final Server server;
-    private final Discord discord;
-    private final BukkitScheduler scheduler = Bukkit.getScheduler();
-    public PlayerQuit(Players plugin) {
-        config = plugin.getConfig();
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
-        server = plugin.getServer();
-        discord = plugin.getDiscord();
+public record PlayerQuit(Players plugin) implements Listener {
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
+    }
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
+    private Discord getDiscord() {
+        return plugin.getDiscord();
+    }
+    private BukkitScheduler getScheduler() {
+        return Bukkit.getScheduler();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         removeTeleportTask(player);
         removeTPAonQuit(player);
-        userdata.setLocation(player, "quit");
-        if (userdata.isVanished(player)) {
-            userdata.getVanished().remove(player);
+        getUserdata().setLocation(player, "quit");
+        if (getUserdata().isVanished(player)) {
+            removeVanishTask(player);
+            plugin.getVanished().remove(player);
             event.setQuitMessage(null);
         } else {
-            if (config.getBoolean("connection.quit.enable")) {
+            if (getConfig().getBoolean("connection.quit.enable")) {
                 event.setQuitMessage(quitMessage(player));
                 playSound();
             } else {
@@ -54,52 +60,58 @@ public class PlayerQuit implements Listener {
                     event.setQuitMessage(null);
                 }
             }
-            userdata.resetTabList();
+            getUserdata().resetTabList();
         }
-        discord.send(player.getName(), "Left the Server");
+        getDiscord().send(player.getName(), "Left the Server");
     }
     private String quitMessage(Player player) {
-        return message.addColor(MessageFormat.format(config.getString("connection.quit.message"), player.getName()));
+        return getMessage().addColor(MessageFormat.format(getConfig().getString("connection.quit.message"), player.getName()));
     }
     private void removeTeleportTask(Player player) {
-        if (userdata.hasTaskID(player, "teleport")) {
-            scheduler.cancelTask(userdata.getTaskID(player, "teleport"));
-            userdata.removeTaskID(player, "teleport");
+        if (getUserdata().hasTaskID(player, "teleport")) {
+            getScheduler().cancelTask(getUserdata().getTaskID(player, "teleport"));
+            getUserdata().removeTaskID(player, "teleport");
+        }
+    }
+    private void removeVanishTask(Player player) {
+        if (getUserdata().hasTaskID(player, "vanish")) {
+            getScheduler().cancelTask(getUserdata().getTaskID(player, "vanish"));
+            getUserdata().removeTaskID(player, "vanish");
         }
     }
     private void playSound() {
-        if (config.getBoolean("connection.quit.sound.enable")) {
-            String soundType = config.getString("connection.quit.sound.type");
-            long soundVolume = config.getLong("connection.quit.sound.volume");
-            long soundPitch = config.getLong("connection.quit.sound.pitch");
-            for (Player players : server.getOnlinePlayers()) {
+        if (getConfig().getBoolean("connection.quit.sound.enable")) {
+            String soundType = getConfig().getString("connection.quit.sound.type");
+            float soundVolume = (float) getConfig().getDouble("connection.quit.sound.volume");
+            float soundPitch = (float) getConfig().getDouble("connection.quit.sound.pitch");
+            for (Player players : getServer().getOnlinePlayers()) {
                 players.playSound(players, Sound.valueOf(soundType), soundVolume, soundPitch);
             }
         }
     }
     private void removeTPAonQuit(Player player) {
-        if (userdata.getConfig(player).isString("tpa.from")) {
-            String uuidString = userdata.getConfig(player).getString("tpa.from");
+        if (getUserdata().getConfig(player).isString("tpa.from")) {
+            String uuidString = getUserdata().getConfig(player).getString("tpa.from");
             UUID uuid = UUID.fromString(uuidString);
-            OfflinePlayer target = server.getOfflinePlayer(uuid);
-            userdata.setString(target, "tpa.sent", null);
-            int taskID = userdata.getConfig(target).getInt("task.tpa");
-            if (server.getScheduler().isQueued(taskID)) {
-                server.getScheduler().cancelTask(taskID);
-                userdata.setString(player, "tpa.from", null);
+            OfflinePlayer target = getServer().getOfflinePlayer(uuid);
+            getUserdata().setString(target, "tpa.sent", null);
+            int taskID = getUserdata().getConfig(target).getInt("task.tpa");
+            if (getScheduler().isQueued(taskID)) {
+                getScheduler().cancelTask(taskID);
+                getUserdata().setString(player, "tpa.from", null);
             }
-            userdata.setString(target, "task.tpa", null);
-        } else if (userdata.getConfig(player).isString("tpa.sent")) {
-            String uuidString = userdata.getConfig(player).getString("tpa.sent");
+            getUserdata().setString(target, "task.tpa", null);
+        } else if (getUserdata().getConfig(player).isString("tpa.sent")) {
+            String uuidString = getUserdata().getConfig(player).getString("tpa.sent");
             UUID uuid = UUID.fromString(uuidString);
-            OfflinePlayer target = server.getOfflinePlayer(uuid);
-            userdata.setString(target, "tpa.from", null);
-            int taskID = userdata.getConfig(player).getInt("task.tpa");
-            if (server.getScheduler().isQueued(taskID)) {
-                server.getScheduler().cancelTask(taskID);
-                userdata.setString(player, "task.tpa", null);
+            OfflinePlayer target = getServer().getOfflinePlayer(uuid);
+            getUserdata().setString(target, "tpa.from", null);
+            int taskID = getUserdata().getConfig(player).getInt("task.tpa");
+            if (getScheduler().isQueued(taskID)) {
+                getScheduler().cancelTask(taskID);
+                getUserdata().setString(player, "task.tpa", null);
             }
-            userdata.setString(player, "tpa.sent", null);
+            getUserdata().setString(player, "tpa.sent", null);
         }
     }
 }

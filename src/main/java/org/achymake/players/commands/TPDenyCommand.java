@@ -3,6 +3,7 @@ package org.achymake.players.commands;
 import org.achymake.players.Players;
 import org.achymake.players.data.Message;
 import org.achymake.players.data.Userdata;
+import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,37 +17,43 @@ import java.util.List;
 import java.util.UUID;
 
 public class TPDenyCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Message message;
-    private final Server server;
-    private final BukkitScheduler scheduler;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private BukkitScheduler getScheduler() {
+        return Bukkit.getScheduler();
+    }
     public TPDenyCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
-        server = plugin.getServer();
-        scheduler = plugin.getServer().getScheduler();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 0) {
-                if (userdata.getConfig(player).isString("tpa.from")) {
-                    String uuidString = userdata.getConfig(player).getString("tpa.from");
+                if (getUserdata().getConfig(player).isString("tpa.from")) {
+                    String uuidString = getUserdata().getConfig(player).getString("tpa.from");
                     UUID uuid = UUID.fromString(uuidString);
-                    Player target = server.getPlayer(uuid);
+                    Player target = getServer().getPlayer(uuid);
                     if (target != null) {
-                        int taskID = userdata.getConfig(target).getInt("task.tpa");
-                        if (scheduler.isQueued(taskID)) {
-                            scheduler.cancelTask(taskID);
-                            message.send(target, player.getName() + "&6 denied tpa request");
-                            message.send(player, "&6You denied tpa request");
-                            userdata.setString(target, "tpa.sent", null);
-                            userdata.setString(target, "task.tpa", null);
-                            userdata.setString(player, "tpa.from", null);
+                        int taskID = getUserdata().getConfig(target).getInt("task.tpa");
+                        if (getScheduler().isQueued(taskID)) {
+                            getScheduler().cancelTask(taskID);
+                            getMessage().send(target, player.getName() + "&6 denied tpa request");
+                            getMessage().send(player, "&6You denied tpa request");
+                            getUserdata().setString(target, "tpa.sent", null);
+                            getUserdata().setString(target, "task.tpa", null);
+                            getUserdata().setString(player, "tpa.from", null);
                         }
                     }
                 } else {
-                    message.send(player, "&cYou haven't have any tpa request");
+                    getMessage().send(player, "&cYou haven't have any tpa request");
                 }
             }
         }

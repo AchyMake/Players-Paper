@@ -9,18 +9,18 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
-public class PlayerSpawnLocation implements Listener {
-    private final Userdata userdata;
-    private final Spawn spawn;
-    public PlayerSpawnLocation(Players plugin) {
-        userdata = plugin.getUserdata();
-        spawn = plugin.getSpawn();
+public record PlayerSpawnLocation(Players plugin) implements Listener {
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Spawn getSpawn() {
+        return plugin.getSpawn();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerSpawnLocation(PlayerSpawnLocationEvent event) {
         Player player = event.getPlayer();
-        if (userdata.exist(player))return;
-        if (!spawn.locationExist())return;
-        event.setSpawnLocation(spawn.getLocation());
+        if (getUserdata().exist(player))return;
+        if (!getSpawn().locationExist())return;
+        event.setSpawnLocation(getSpawn().getLocation());
     }
 }

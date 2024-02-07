@@ -15,11 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BanCommand implements CommandExecutor, TabCompleter {
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public BanCommand(Players plugin) {
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -27,7 +31,7 @@ public class BanCommand implements CommandExecutor, TabCompleter {
             if (args.length == 1) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
                 if (offlinePlayer.isBanned()) {
-                    message.send(player, offlinePlayer.getName() + "&c is already banned");
+                    getMessage().send(player, offlinePlayer.getName() + "&c is already banned");
                 } else {
                     offlinePlayer.banPlayer("&6You have been banned with no reason&7 by: " + player.getName());
                 }
@@ -40,7 +44,7 @@ public class BanCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player) {
             if (args.length == 1) {
-                for (OfflinePlayer offlinePlayer : server.getBannedPlayers()) {
+                for (OfflinePlayer offlinePlayer : getServer().getBannedPlayers()) {
                     commands.add(offlinePlayer.getName());
                 }
             }

@@ -12,11 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RepairCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Message message;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
     public RepairCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -24,19 +28,19 @@ public class RepairCommand implements CommandExecutor, TabCompleter {
             if (args.length == 0) {
                 ItemStack itemStack = player.getInventory().getItemInMainHand();
                 if (itemStack.getType().isAir()) {
-                    message.send(player,"&cYou have to hold an item");
+                    getMessage().send(player,"&cYou have to hold an item");
                 } else {
-                    if (userdata.hasCooldown(player, "repair")) {
-                        message.sendActionBar(player, "&cYou have to wait&f " + userdata.getCooldown(player, "repair") + "&c seconds");
+                    if (getUserdata().hasCooldown(player, "repair")) {
+                        getMessage().sendActionBar(player, "&cYou have to wait&f " + getUserdata().getCooldown(player, "repair") + "&c seconds");
                     } else {
                         Damageable damageable = (Damageable) itemStack.getItemMeta();
                         if (damageable.hasDamage()) {
                             damageable.setDamage(0);
                             itemStack.setItemMeta(damageable);
-                            message.send(player, "&6You repaired&f " + itemStack.getType());
-                            userdata.addCooldown(player, "repair");
+                            getMessage().send(player, "&6You repaired&f " + itemStack.getType());
+                            getUserdata().addCooldown(player, "repair");
                         } else {
-                            message.send(player, "&cThe item is fully repaired");
+                            getMessage().send(player, "&cThe item is fully repaired");
                         }
                     }
                 }
@@ -46,15 +50,15 @@ public class RepairCommand implements CommandExecutor, TabCompleter {
                     if (player.hasPermission("players.command.repair.force")) {
                         ItemStack itemStack = player.getInventory().getItemInMainHand();
                         if (itemStack.getType().isAir()) {
-                            message.send(player,"&cYou have to hold an item");
+                            getMessage().send(player,"&cYou have to hold an item");
                         } else {
                             Damageable damageable = (Damageable) itemStack.getItemMeta();
                             if (damageable.hasDamage()) {
                                 damageable.setDamage(0);
                                 itemStack.setItemMeta(damageable);
-                                message.send(player, "&6You repaired&f " + itemStack.getType());
+                                getMessage().send(player, "&6You repaired&f " + itemStack.getType());
                             } else {
-                                message.send(player, "&cThe item is fully repaired");
+                                getMessage().send(player, "&cThe item is fully repaired");
                             }
                         }
                     }

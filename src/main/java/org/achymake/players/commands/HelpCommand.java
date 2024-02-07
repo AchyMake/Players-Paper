@@ -11,13 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HelpCommand implements CommandExecutor, TabCompleter {
-    private final FileConfiguration config;
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public HelpCommand(Players plugin) {
-        config = plugin.getConfig();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -26,7 +31,7 @@ public class HelpCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 1) {
             if (sender.hasPermission("players.command.rules.others")) {
-                Player target = server.getPlayerExact(args[0]);
+                Player target = getServer().getPlayerExact(args[0]);
                 if (target != null) {
                     sendHelp(target);
                 }
@@ -40,7 +45,7 @@ public class HelpCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 if (player.hasPermission("players.command.rules.others")) {
-                    for (Player players : server.getOnlinePlayers()) {
+                    for (Player players : getServer().getOnlinePlayers()) {
                         commands.add(players.getName());
                     }
                 }
@@ -50,21 +55,21 @@ public class HelpCommand implements CommandExecutor, TabCompleter {
     }
     private void sendHelp(CommandSender sender) {
         if (sender instanceof Player player) {
-            if (config.isList("help")) {
-                for (String messages : config.getStringList("help")) {
-                    message.send(player, messages.replaceAll("%player%", player.getName()));
+            if (getConfig().isList("help")) {
+                for (String messages : getConfig().getStringList("help")) {
+                    getMessage().send(player, messages.replaceAll("%player%", player.getName()));
                 }
-            } else if (config.isString("help")) {
-                message.send(player, config.getString("help").replaceAll("%player%", player.getName()));
+            } else if (getConfig().isString("help")) {
+                getMessage().send(player, getConfig().getString("help").replaceAll("%player%", player.getName()));
             }
         }
         if (sender instanceof ConsoleCommandSender commandSender) {
-            if (config.isList("help")) {
-                for (String messages : config.getStringList("help")) {
-                    message.send(commandSender, messages.replaceAll("%player%", commandSender.getName()));
+            if (getConfig().isList("help")) {
+                for (String messages : getConfig().getStringList("help")) {
+                    getMessage().send(commandSender, messages.replaceAll("%player%", commandSender.getName()));
                 }
-            } else if (config.isString("help")) {
-                message.send(commandSender, config.getString("help").replaceAll("%player%", commandSender.getName()));
+            } else if (getConfig().isString("help")) {
+                getMessage().send(commandSender, getConfig().getString("help").replaceAll("%player%", commandSender.getName()));
             }
         }
     }

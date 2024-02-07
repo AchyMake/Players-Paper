@@ -13,47 +13,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FreezeCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public FreezeCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 1) {
-                Player target = server.getPlayerExact(args[0]);
+                Player target = getServer().getPlayerExact(args[0]);
                 if (target == player) {
-                    userdata.setBoolean(target, "settings.frozen", !userdata.isFrozen(target));
-                    if (userdata.isFrozen(target)) {
-                        message.send(player, "&6You froze&f " + target.getName());
+                    getUserdata().setBoolean(target, "settings.frozen", !getUserdata().isFrozen(target));
+                    if (getUserdata().isFrozen(target)) {
+                        getMessage().send(player, "&6You froze&f " + target.getName());
                     } else {
-                        message.send(player, "&6You unfroze&f " + target.getName());
+                        getMessage().send(player, "&6You unfroze&f " + target.getName());
                     }
                 } else {
                     if (target != null) {
                         if (!target.hasPermission("players.command.freeze.exempt")) {
-                            userdata.setBoolean(target, "settings.frozen", !userdata.isFrozen(target));
-                            if (userdata.isFrozen(target)) {
-                                message.send(player, "&6You froze&f " + target.getName());
+                            getUserdata().setBoolean(target, "settings.frozen", !getUserdata().isFrozen(target));
+                            if (getUserdata().isFrozen(target)) {
+                                getMessage().send(player, "&6You froze&f " + target.getName());
                             } else {
-                                message.send(player, "&6You unfroze&f " + target.getName());
+                                getMessage().send(player, "&6You unfroze&f " + target.getName());
                             }
                         }
                     } else {
                         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
-                        if (userdata.exist(offlinePlayer)) {
-                            userdata.setBoolean(offlinePlayer, "settings.frozen", !userdata.isFrozen(offlinePlayer));
-                            if (userdata.isFrozen(offlinePlayer)) {
-                                message.send(player, "&6You froze&f " + offlinePlayer.getName());
+                        if (getUserdata().exist(offlinePlayer)) {
+                            getUserdata().setBoolean(offlinePlayer, "settings.frozen", !getUserdata().isFrozen(offlinePlayer));
+                            if (getUserdata().isFrozen(offlinePlayer)) {
+                                getMessage().send(player, "&6You froze&f " + offlinePlayer.getName());
                             } else {
-                                message.send(player, "&6You unfroze&f " + offlinePlayer.getName());
+                                getMessage().send(player, "&6You unfroze&f " + offlinePlayer.getName());
                             }
                         } else {
-                            message.send(player, offlinePlayer.getName() + "&c has never joined");
+                            getMessage().send(player, offlinePlayer.getName() + "&c has never joined");
                         }
                     }
                 }
@@ -61,25 +66,25 @@ public class FreezeCommand implements CommandExecutor, TabCompleter {
         }
         if (sender instanceof ConsoleCommandSender consoleCommandSender) {
             if (args.length == 1) {
-                Player target = server.getPlayerExact(args[0]);
+                Player target = getServer().getPlayerExact(args[0]);
                 if (target != null) {
-                    userdata.setBoolean(target, "settings.frozen", !userdata.isFrozen(target));
-                    if (userdata.isFrozen(target)) {
-                        message.send(consoleCommandSender, "You froze " + target.getName());
+                    getUserdata().setBoolean(target, "settings.frozen", !getUserdata().isFrozen(target));
+                    if (getUserdata().isFrozen(target)) {
+                        getMessage().send(consoleCommandSender, "You froze " + target.getName());
                     } else {
-                        message.send(consoleCommandSender, "You unfroze " + target.getName());
+                        getMessage().send(consoleCommandSender, "You unfroze " + target.getName());
                     }
                 } else {
                     OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
-                    if (userdata.exist(offlinePlayer)) {
-                        userdata.setBoolean(offlinePlayer, "settings.frozen", !userdata.isFrozen(offlinePlayer));
-                        if (userdata.isFrozen(offlinePlayer)) {
-                            message.send(consoleCommandSender, "You froze " + offlinePlayer.getName());
+                    if (getUserdata().exist(offlinePlayer)) {
+                        getUserdata().setBoolean(offlinePlayer, "settings.frozen", !getUserdata().isFrozen(offlinePlayer));
+                        if (getUserdata().isFrozen(offlinePlayer)) {
+                            getMessage().send(consoleCommandSender, "You froze " + offlinePlayer.getName());
                         } else {
-                            message.send(consoleCommandSender, "You unfroze " + offlinePlayer.getName());
+                            getMessage().send(consoleCommandSender, "You unfroze " + offlinePlayer.getName());
                         }
                     } else {
-                        message.send(consoleCommandSender, offlinePlayer.getName() + " has never joined");
+                        getMessage().send(consoleCommandSender, offlinePlayer.getName() + " has never joined");
                     }
                 }
             }
@@ -91,7 +96,7 @@ public class FreezeCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player player) {
             if (args.length == 1) {
-                for (Player players : server.getOnlinePlayers()) {
+                for (Player players : getServer().getOnlinePlayers()) {
                     if (!players.hasPermission("players.command.freeze.exempt")) {
                         commands.add(players.getName());
                     }

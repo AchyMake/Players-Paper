@@ -14,22 +14,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UnBanCommand implements CommandExecutor, TabCompleter {
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Server getServer() {
+        return plugin.getServer();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
     public UnBanCommand(Players plugin) {
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 1) {
-                OfflinePlayer offlinePlayer = server.getOfflinePlayer(args[0]);
+                OfflinePlayer offlinePlayer = getServer().getOfflinePlayer(args[0]);
                 if (offlinePlayer.isBanned()) {
-                    server.getBannedPlayers().remove(offlinePlayer);
-                    message.send(player, offlinePlayer.getName() + "&6 is no longer banned");
+                    getServer().getBannedPlayers().remove(offlinePlayer);
+                    getMessage().send(player, offlinePlayer.getName() + "&6 is no longer banned");
                 } else {
-                    message.send(player, offlinePlayer.getName() + "&c is not banned");
+                    getMessage().send(player, offlinePlayer.getName() + "&c is not banned");
                 }
             }
         }
@@ -40,7 +44,7 @@ public class UnBanCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player) {
             if (args.length == 1) {
-                for (OfflinePlayer offlinePlayer : server.getBannedPlayers()) {
+                for (OfflinePlayer offlinePlayer : getServer().getBannedPlayers()) {
                     commands.add(offlinePlayer.getName());
                 }
             }

@@ -16,22 +16,23 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.Random;
 
-public class PlayerDeath implements Listener {
-    private final FileConfiguration config;
-    private final Userdata userdata;
-    private final Discord discord;
-    public PlayerDeath(Players plugin) {
-        config = plugin.getConfig();
-        userdata = plugin.getUserdata();
-        discord = plugin.getDiscord();
+public record PlayerDeath(Players plugin) implements Listener {
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
+    }
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Discord getDiscord() {
+        return plugin.getDiscord();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getPlayer();
-        userdata.setLocation(player, "death");
-        discord.send(player.getName(), event.getDeathMessage());
-        if (!(config.getInt("deaths.drop-player-head.chance") > new Random().nextInt(100)))return;
-        if (config.getBoolean("deaths.drop-player-head.enable")) {
+        getUserdata().setLocation(player, "death");
+        getDiscord().send(player.getName(), event.getDeathMessage());
+        if (!(getConfig().getInt("deaths.drop-player-head.chance") > new Random().nextInt(100)))return;
+        if (getConfig().getBoolean("deaths.drop-player-head.enable")) {
             event.getDrops().add(getOfflinePlayerHead(player, 1));
         } else if (player.hasPermission("players.death-player-head")) {
             event.getDrops().add(getOfflinePlayerHead(player, 1));

@@ -14,28 +14,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RTPCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Message message;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
     public RTPCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 0) {
-                if (userdata.hasCooldown(player, "rtp")) {
-                    message.sendActionBar(player, "&cYou have to wait&f " + userdata.getCooldown(player, "rtp") + "&c seconds");
+                if (getUserdata().hasCooldown(player, "rtp")) {
+                    getMessage().sendActionBar(player, "&cYou have to wait&f " + getUserdata().getCooldown(player, "rtp") + "&c seconds");
                 } else {
-                    userdata.addCooldown(player, "rtp");
-                    message.sendActionBar(player, "&6Finding safe locations...");
+                    getUserdata().addCooldown(player, "rtp");
+                    getMessage().sendActionBar(player, "&6Finding safe locations...");
                     randomTeleport(player);
                 }
             }
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("force")) {
                     if (player.hasPermission("players.command.rtp.force")) {
-                        message.sendActionBar(player, "&6Finding safe locations...");
+                        getMessage().sendActionBar(player, "&6Finding safe locations...");
                         randomTeleport(player);
                     }
                 }
@@ -44,13 +48,13 @@ public class RTPCommand implements CommandExecutor, TabCompleter {
         return true;
     }
     public void randomTeleport(Player player) {
-        Block block = userdata.highestRandomBlock();
+        Block block = getUserdata().highestRandomBlock();
         if (block.isLiquid()) {
-            message.sendActionBar(player, "&cFinding new location due to liquid block");
+            getMessage().sendActionBar(player, "&cFinding new location due to liquid block");
             randomTeleport(player);
         } else {
             block.getChunk().load();
-            message.sendActionBar(player, "&6Teleporting");
+            getMessage().sendActionBar(player, "&6Teleporting");
             player.teleport(block.getLocation().add(0.5,1,0.5));
         }
     }

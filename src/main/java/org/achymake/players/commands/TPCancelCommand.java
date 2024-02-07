@@ -3,6 +3,7 @@ package org.achymake.players.commands;
 import org.achymake.players.Players;
 import org.achymake.players.data.Message;
 import org.achymake.players.data.Userdata;
+import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,37 +17,43 @@ import java.util.List;
 import java.util.UUID;
 
 public class TPCancelCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Message message;
-    private final Server server;
-    private final BukkitScheduler scheduler;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private BukkitScheduler getScheduler() {
+        return Bukkit.getScheduler();
+    }
     public TPCancelCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
-        server = plugin.getServer();
-        scheduler = server.getScheduler();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 0) {
-                if (userdata.getConfig(player).isString("tpa.sent")) {
-                    String uuidString = userdata.getConfig(player).getString("tpa.sent");
+                if (getUserdata().getConfig(player).isString("tpa.sent")) {
+                    String uuidString = getUserdata().getConfig(player).getString("tpa.sent");
                     UUID uuid = UUID.fromString(uuidString);
-                    Player target = server.getPlayer(uuid);
+                    Player target = getServer().getPlayer(uuid);
                     if (target != null) {
-                        int taskID = userdata.getConfig(player).getInt("task.tpa");
-                        if (scheduler.isQueued(taskID)) {
-                            scheduler.cancelTask(taskID);
-                            message.send(target, player.getName() + "&6 cancelled tpa request");
-                            message.send(player, "&6You cancelled tpa request");
-                            userdata.setString(target, "tpa.from", null);
-                            userdata.setString(player, "task.tpa", null);
-                            userdata.setString(player, "tpa.sent", null);
+                        int taskID = getUserdata().getConfig(player).getInt("task.tpa");
+                        if (getScheduler().isQueued(taskID)) {
+                            getScheduler().cancelTask(taskID);
+                            getMessage().send(target, player.getName() + "&6 cancelled tpa request");
+                            getMessage().send(player, "&6You cancelled tpa request");
+                            getUserdata().setString(target, "tpa.from", null);
+                            getUserdata().setString(player, "task.tpa", null);
+                            getUserdata().setString(player, "tpa.sent", null);
                         }
                     }
                 } else {
-                    message.send(player, "&cYou haven't sent any tpa request");
+                    getMessage().send(player, "&cYou haven't sent any tpa request");
                 }
             }
         }

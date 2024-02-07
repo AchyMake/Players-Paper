@@ -11,13 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RulesCommand implements CommandExecutor, TabCompleter {
-    private final FileConfiguration config;
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public RulesCommand(Players plugin) {
-        config = plugin.getConfig();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -26,7 +31,7 @@ public class RulesCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 1) {
             if (sender.hasPermission("players.command.rules.others")) {
-                Player target = server.getPlayerExact(args[0]);
+                Player target = getServer().getPlayerExact(args[0]);
                 if (target != null) {
                     sendRules(target);
                 }
@@ -50,21 +55,21 @@ public class RulesCommand implements CommandExecutor, TabCompleter {
     }
     private void sendRules(CommandSender sender) {
         if (sender instanceof Player player) {
-            if (config.isList("rules")) {
-                for (String messages : config.getStringList("rules")) {
-                    message.send(player, messages.replaceAll("%player%", player.getName()));
+            if (getConfig().isList("rules")) {
+                for (String messages : getConfig().getStringList("rules")) {
+                    getMessage().send(player, messages.replaceAll("%player%", player.getName()));
                 }
-            } else if (config.isString("rules")) {
-                message.send(player, config.getString("rules").replaceAll("%player%", player.getName()));
+            } else if (getConfig().isString("rules")) {
+                getMessage().send(player, getConfig().getString("rules").replaceAll("%player%", player.getName()));
             }
         }
         if (sender instanceof ConsoleCommandSender commandSender) {
-            if (config.isList("rules")) {
-                for (String messages : config.getStringList("rules")) {
-                    message.send(commandSender, messages.replaceAll("%player%", commandSender.getName()));
+            if (getConfig().isList("rules")) {
+                for (String messages : getConfig().getStringList("rules")) {
+                    getMessage().send(commandSender, messages.replaceAll("%player%", commandSender.getName()));
                 }
-            } else if (config.isString("rules")) {
-                message.send(commandSender, config.getString("rules").replaceAll("%player%", commandSender.getName()));
+            } else if (getConfig().isString("rules")) {
+                getMessage().send(commandSender, getConfig().getString("rules").replaceAll("%player%", commandSender.getName()));
             }
         }
     }

@@ -12,41 +12,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SpawnCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Spawn spawn;
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Spawn getSpawn() {
+        return plugin.getSpawn();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public SpawnCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        spawn = plugin.getSpawn();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 0) {
-                if (userdata.isFrozen(player) || userdata.isJailed(player)) {
+                if (getUserdata().isFrozen(player) || getUserdata().isJailed(player)) {
                     return false;
                 } else {
-                    if (spawn.locationExist()) {
-                        userdata.teleport(player, "spawn", spawn.getLocation());
+                    if (getSpawn().locationExist()) {
+                        getUserdata().teleport(player, "spawn", getSpawn().getLocation());
                     } else {
-                        message.send(player, "Spawn&c does not exist");
+                        getMessage().send(player, "Spawn&c does not exist");
                     }
                 }
             }
             if (args.length == 1) {
                 if (player.hasPermission("players.command.spawn.others")) {
-                    Player target = server.getPlayerExact(args[0]);
+                    Player target = getServer().getPlayerExact(args[0]);
                     if (target != null) {
-                        if (userdata.isFrozen(target) || userdata.isJailed(target)) {
+                        if (getUserdata().isFrozen(target) || getUserdata().isJailed(target)) {
                             return false;
                         } else {
-                            if (spawn.locationExist()) {
-                                userdata.teleport(player, "spawn", spawn.getLocation());
+                            if (getSpawn().locationExist()) {
+                                getUserdata().teleport(player, "spawn", getSpawn().getLocation());
                             } else {
-                                message.send(player, "Spawn&c does not exist");
+                                getMessage().send(player, "Spawn&c does not exist");
                             }
                         }
                     }
@@ -55,15 +61,15 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
         }
         if (sender instanceof ConsoleCommandSender consoleCommandSender) {
             if (args.length == 1) {
-                Player target = server.getPlayerExact(args[0]);
+                Player target = getServer().getPlayerExact(args[0]);
                 if (target != null) {
-                    if (userdata.isFrozen(target) || userdata.isJailed(target)) {
+                    if (getUserdata().isFrozen(target) || getUserdata().isJailed(target)) {
                         return false;
                     } else {
-                        if (spawn.locationExist()) {
-                            userdata.teleport(target, "spawn", spawn.getLocation());
+                        if (getSpawn().locationExist()) {
+                            getUserdata().teleport(target, "spawn", getSpawn().getLocation());
                         } else {
-                            message.send(consoleCommandSender, "Spawn&c does not exist");
+                            getMessage().send(consoleCommandSender, "Spawn&c does not exist");
                         }
                     }
                 }
@@ -77,7 +83,7 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 if (player.hasPermission("players.command.spawn.others")) {
-                    for (Player players : server.getOnlinePlayers()) {
+                    for (Player players : getServer().getOnlinePlayers()) {
                         commands.add(players.getName());
                     }
                 }

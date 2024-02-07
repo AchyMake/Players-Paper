@@ -7,16 +7,15 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-public class PlayerCommandPreprocess implements Listener {
-    private final FileConfiguration config;
-    public PlayerCommandPreprocess(Players plugin) {
-        config = plugin.getConfig();
+public record PlayerCommandPreprocess(Players plugin) implements Listener {
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         if (event.getPlayer().hasPermission("players.event.command.exempt"))return;
         String message = event.getMessage();
-        for (String disabled : config.getStringList("commands.disable")) {
+        for (String disabled : getConfig().getStringList("commands.disable")) {
             if (message.startsWith("/" + disabled)) {
                 event.setCancelled(true);
             }

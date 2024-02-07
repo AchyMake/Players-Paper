@@ -10,11 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AnvilCommand implements CommandExecutor, TabCompleter {
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public AnvilCommand(Players plugin) {
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -24,14 +28,14 @@ public class AnvilCommand implements CommandExecutor, TabCompleter {
             }
             if (args.length == 1) {
                 if (player.hasPermission("players.command.anvil.others")) {
-                    Player target = server.getPlayerExact(args[0]);
+                    Player target = getServer().getPlayerExact(args[0]);
                     if (target == player) {
                         target.openAnvil(target.getLocation(), true);
                     } else {
                         if (target != null) {
                             target.openAnvil(target.getLocation(), true);
-                            message.send(target, player.getName() + "&6 opened anvil for you");
-                            message.send(player, "&6You opened anvil for " + target.getName());
+                            getMessage().send(target, player.getName() + "&6 opened anvil for you");
+                            getMessage().send(player, "&6You opened anvil for " + target.getName());
                         }
                     }
                 }
@@ -39,10 +43,10 @@ public class AnvilCommand implements CommandExecutor, TabCompleter {
         }
         if (sender instanceof ConsoleCommandSender commandSender) {
             if (args.length == 1) {
-                Player target = server.getPlayerExact(args[0]);
+                Player target = getServer().getPlayerExact(args[0]);
                 if (target != null) {
                     target.openWorkbench(target.getLocation(), true);
-                    message.send(commandSender, "You opened anvil for " + target.getName());
+                    getMessage().send(commandSender, "You opened anvil for " + target.getName());
                 }
             }
         }
@@ -54,7 +58,7 @@ public class AnvilCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 if (player.hasPermission("players.command.anvil.others")) {
-                    for (Player players : server.getOnlinePlayers()) {
+                    for (Player players : getServer().getOnlinePlayers()) {
                         commands.add(players.getName());
                     }
                 }

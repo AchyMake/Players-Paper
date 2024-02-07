@@ -13,25 +13,27 @@ import java.util.Collections;
 import java.util.List;
 
 public class VaultEconomyProvider implements net.milkbowl.vault.economy.Economy {
-    private final boolean enabled;
-    private final String name;
-    private final FileConfiguration config;
-    private final Userdata userdata;
-    private final Economy economy;
-    private final Server server;
+    private final Players plugin;
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
+    }
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Economy getEconomy() {
+        return plugin.getEconomy();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public VaultEconomyProvider(Players plugin) {
-        enabled = plugin.isEnabled();
-        name = plugin.getName();
-        config = plugin.getConfig();
-        userdata = plugin.getUserdata();
-        economy = plugin.getEconomy();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     public boolean isEnabled() {
-        return enabled;
+        return plugin.isEnabled();
     }
     public String getName() {
-        return name;
+        return plugin.getDescription().getName();
     }
     public boolean hasBankSupport() {
         return false;
@@ -40,19 +42,19 @@ public class VaultEconomyProvider implements net.milkbowl.vault.economy.Economy 
         return -1;
     }
     public String format(double amount) {
-        return new DecimalFormat(config.getString("economy.format")).format(amount);
+        return new DecimalFormat(getConfig().getString("economy.format")).format(amount);
     }
     public String currencyNamePlural() {
         return currencyNameSingular();
     }
     public String currencyNameSingular() {
-        return config.getString("economy.currency");
+        return getConfig().getString("economy.currency");
     }
     public boolean hasAccount(OfflinePlayer offlinePlayer) {
-        return userdata.exist(offlinePlayer);
+        return getUserdata().exist(offlinePlayer);
     }
     public boolean hasAccount(String playerName) {
-        return userdata.exist(server.getOfflinePlayer(playerName));
+        return getUserdata().exist(getServer().getOfflinePlayer(playerName));
     }
     public boolean hasAccount(String playerName, String worldName) {
         return hasAccount(playerName);
@@ -61,10 +63,10 @@ public class VaultEconomyProvider implements net.milkbowl.vault.economy.Economy 
         return hasAccount(player);
     }
     public double getBalance(OfflinePlayer offlinePlayer) {
-        return economy.getEconomy(offlinePlayer);
+        return getEconomy().get(offlinePlayer);
     }
     public double getBalance(String playerName) {
-        return economy.getEconomy(server.getOfflinePlayer(playerName));
+        return getEconomy().get(getServer().getOfflinePlayer(playerName));
     }
     public double getBalance(String playerName, String world) {
         return getBalance(playerName);
@@ -73,10 +75,10 @@ public class VaultEconomyProvider implements net.milkbowl.vault.economy.Economy 
         return getBalance(player);
     }
     public boolean has(OfflinePlayer offlinePlayer, double amount) {
-        return economy.getEconomy(offlinePlayer) >= amount;
+        return getEconomy().has(offlinePlayer, amount);
     }
     public boolean has(String playerName, double amount) {
-        return economy.getEconomy(server.getOfflinePlayer(playerName)) >= amount;
+        return getEconomy().has(getServer().getOfflinePlayer(playerName), amount);
     }
     public boolean has(String playerName, String worldName, double amount) {
         return has(playerName, amount);
@@ -91,7 +93,7 @@ public class VaultEconomyProvider implements net.milkbowl.vault.economy.Economy 
         } else if (amount < 0.0) {
             return new EconomyResponse(0.0, 0.0, EconomyResponse.ResponseType.FAILURE, "Cannot withdraw negative funds!");
         } else {
-            economy.removeEconomy(offlinePlayer, amount);
+            getEconomy().remove(offlinePlayer, amount);
             return new EconomyResponse(amount, getBalance(offlinePlayer), EconomyResponse.ResponseType.SUCCESS, null);
         }
     }
@@ -101,7 +103,7 @@ public class VaultEconomyProvider implements net.milkbowl.vault.economy.Economy 
         } else if (amount < 0.0) {
             return new EconomyResponse(0.0, 0.0, EconomyResponse.ResponseType.FAILURE, "Cannot withdraw negative funds!");
         } else {
-            economy.removeEconomy(server.getOfflinePlayer(playerName), amount);
+            getEconomy().remove(getServer().getOfflinePlayer(playerName), amount);
             return new EconomyResponse(amount, getBalance(playerName), EconomyResponse.ResponseType.SUCCESS, null);
         }
     }
@@ -117,7 +119,7 @@ public class VaultEconomyProvider implements net.milkbowl.vault.economy.Economy 
         } else if (amount < 0.0) {
             return new EconomyResponse(0.0, 0.0, EconomyResponse.ResponseType.FAILURE, "Cannot deposit negative funds");
         } else {
-            economy.addEconomy(offlinePlayer, amount);
+            getEconomy().add(offlinePlayer, amount);
             return new EconomyResponse(amount, getBalance(offlinePlayer), EconomyResponse.ResponseType.SUCCESS, null);
         }
     }
@@ -127,7 +129,7 @@ public class VaultEconomyProvider implements net.milkbowl.vault.economy.Economy 
         } else if (amount < 0.0) {
             return new EconomyResponse(0.0, 0.0, EconomyResponse.ResponseType.FAILURE, "Cannot deposit negative funds");
         } else {
-            economy.addEconomy(server.getOfflinePlayer(playerName), amount);
+            getEconomy().add(getServer().getOfflinePlayer(playerName), amount);
             return new EconomyResponse(amount, getBalance(playerName), EconomyResponse.ResponseType.SUCCESS, null);
         }
     }
@@ -138,11 +140,11 @@ public class VaultEconomyProvider implements net.milkbowl.vault.economy.Economy 
         return depositPlayer(player, amount);
     }
     public boolean createPlayerAccount(OfflinePlayer offlinePlayer) {
-        userdata.setup(offlinePlayer);
+        getUserdata().setup(offlinePlayer);
         return true;
     }
     public boolean createPlayerAccount(String playerName) {
-        userdata.setup(server.getOfflinePlayer(playerName));
+        getUserdata().setup(getServer().getOfflinePlayer(playerName));
         return true;
     }
     public boolean createPlayerAccount(String playerName, String worldName) {

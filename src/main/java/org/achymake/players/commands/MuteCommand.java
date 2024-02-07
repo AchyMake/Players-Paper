@@ -13,47 +13,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MuteCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public MuteCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 1) {
-                Player target = server.getPlayerExact(args[0]);
+                Player target = getServer().getPlayerExact(args[0]);
                 if (target == player) {
-                    userdata.setBoolean(target, "settings.muted", !userdata.isMuted(target));
-                    if (userdata.isMuted(target)) {
-                        message.send(player, "&6You muted your self");
+                    getUserdata().setBoolean(target, "settings.muted", !getUserdata().isMuted(target));
+                    if (getUserdata().isMuted(target)) {
+                        getMessage().send(player, "&6You muted your self");
                     } else {
-                        message.send(player, "&6You unmuted your self");
+                        getMessage().send(player, "&6You unmuted your self");
                     }
                 } else {
                     if (target != null) {
                         if (!target.hasPermission("players.command.mute.exempt")) {
-                            userdata.setBoolean(target, "settings.muted", !userdata.isMuted(target));
-                            if (userdata.isMuted(target)) {
-                                message.send(player, "&6You muted&f " + target.getName());
+                            getUserdata().setBoolean(target, "settings.muted", !getUserdata().isMuted(target));
+                            if (getUserdata().isMuted(target)) {
+                                getMessage().send(player, "&6You muted&f " + target.getName());
                             } else {
-                                message.send(player, "&6You unmuted&f " + target.getName());
+                                getMessage().send(player, "&6You unmuted&f " + target.getName());
                             }
                         }
                     } else {
                         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
-                        if (userdata.exist(offlinePlayer)) {
-                            userdata.setBoolean(offlinePlayer, "settings.muted", !userdata.isMuted(offlinePlayer));
-                            if (userdata.isMuted(offlinePlayer)) {
-                                message.send(player, "&6You muted&f " + offlinePlayer.getName());
+                        if (getUserdata().exist(offlinePlayer)) {
+                            getUserdata().setBoolean(offlinePlayer, "settings.muted", !getUserdata().isMuted(offlinePlayer));
+                            if (getUserdata().isMuted(offlinePlayer)) {
+                                getMessage().send(player, "&6You muted&f " + offlinePlayer.getName());
                             } else {
-                                message.send(player, "&6You unmuted&f " + offlinePlayer.getName());
+                                getMessage().send(player, "&6You unmuted&f " + offlinePlayer.getName());
                             }
                         } else {
-                            message.send(player,offlinePlayer.getName() + "&c has never joined");
+                            getMessage().send(player,offlinePlayer.getName() + "&c has never joined");
                         }
                     }
                 }
@@ -61,25 +66,25 @@ public class MuteCommand implements CommandExecutor, TabCompleter {
         }
         if (sender instanceof ConsoleCommandSender consoleCommandSender) {
             if (args.length == 1) {
-                Player target = server.getPlayerExact(args[0]);
+                Player target = getServer().getPlayerExact(args[0]);
                 if (target != null) {
-                    userdata.setBoolean(target, "settings.muted", !userdata.isMuted(target));
-                    if (userdata.isMuted(target)) {
-                        message.send(consoleCommandSender, "You muted " + target.getName());
+                    getUserdata().setBoolean(target, "settings.muted", !getUserdata().isMuted(target));
+                    if (getUserdata().isMuted(target)) {
+                        getMessage().send(consoleCommandSender, "You muted " + target.getName());
                     } else {
-                        message.send(consoleCommandSender, "You unmuted " + target.getName());
+                        getMessage().send(consoleCommandSender, "You unmuted " + target.getName());
                     }
                 } else {
                     OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
-                    if (userdata.exist(offlinePlayer)) {
-                        userdata.setBoolean(offlinePlayer, "settings.muted", !userdata.isMuted(offlinePlayer));
-                        if (userdata.isMuted(offlinePlayer)) {
-                            message.send(consoleCommandSender, "You muted " + offlinePlayer.getName());
+                    if (getUserdata().exist(offlinePlayer)) {
+                        getUserdata().setBoolean(offlinePlayer, "settings.muted", !getUserdata().isMuted(offlinePlayer));
+                        if (getUserdata().isMuted(offlinePlayer)) {
+                            getMessage().send(consoleCommandSender, "You muted " + offlinePlayer.getName());
                         } else {
-                            message.send(consoleCommandSender, "You unmuted " + offlinePlayer.getName());
+                            getMessage().send(consoleCommandSender, "You unmuted " + offlinePlayer.getName());
                         }
                     } else {
-                        message.send(consoleCommandSender,offlinePlayer.getName() + " has never joined");
+                        getMessage().send(consoleCommandSender,offlinePlayer.getName() + " has never joined");
                     }
                 }
             }
@@ -91,7 +96,7 @@ public class MuteCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player player) {
             if (args.length == 1) {
-                for (Player players : server.getOnlinePlayers()) {
+                for (Player players : getServer().getOnlinePlayers()) {
                     if (!players.hasPermission("players.command.mute.exempt")) {
                         commands.add(players.getName());
                     }

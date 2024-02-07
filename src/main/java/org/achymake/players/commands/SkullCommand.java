@@ -19,11 +19,15 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SkullCommand implements CommandExecutor, TabCompleter {
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public SkullCommand(Players plugin) {
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -35,7 +39,7 @@ public class SkullCommand implements CommandExecutor, TabCompleter {
                 } else {
                     player.getWorld().dropItem(player.getLocation(), getOfflinePlayerHead(offlinePlayer, 1));
                 }
-                message.send(player, "&6You received&f " + offlinePlayer.getName() + "&6's skull");
+                getMessage().send(player, "&6You received&f " + offlinePlayer.getName() + "&6's skull");
             }
         }
         return true;
@@ -45,7 +49,7 @@ public class SkullCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player) {
             if (args.length == 1) {
-                for (Player players : server.getOnlinePlayers()) {
+                for (Player players : getServer().getOnlinePlayers()) {
                     commands.add(players.getName());
                 }
             }

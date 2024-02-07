@@ -15,21 +15,26 @@ import java.util.List;
 import java.util.UUID;
 
 public class RespondCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public RespondCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (!userdata.isMuted(player)) {
+            if (!getUserdata().isMuted(player)) {
                 if (args.length > 0) {
-                    if (userdata.getConfig(player).isString("last-whisper")) {
-                        String uuidString = userdata.getConfig(player).getString("last-whisper");
+                    if (getUserdata().getConfig(player).isString("last-whisper")) {
+                        String uuidString = getUserdata().getConfig(player).getString("last-whisper");
                         UUID uuid = UUID.fromString(uuidString);
                         Player target = player.getServer().getPlayer(uuid);
                         if (target != null) {
@@ -39,12 +44,12 @@ public class RespondCommand implements CommandExecutor, TabCompleter {
                                 stringBuilder.append(" ");
                             }
                             String builder = stringBuilder.toString().strip();
-                            message.send(player, "&7You > " + target.getName() + ": " + builder);
-                            message.send(target, "&7" + player.getName() + " > You: " + builder);
-                            userdata.setString(target, "last-whisper", player.getUniqueId().toString());
-                            for (Player players : server.getOnlinePlayers()) {
+                            getMessage().send(player, "&7You > " + target.getName() + ": " + builder);
+                            getMessage().send(target, "&7" + player.getName() + " > You: " + builder);
+                            getUserdata().setString(target, "last-whisper", player.getUniqueId().toString());
+                            for (Player players : getServer().getOnlinePlayers()) {
                                 if (players.hasPermission("players.notify.whispers")) {
-                                    message.send(players, "&7" + player.getName() + " > " + target.getName() + ": " + builder);
+                                    getMessage().send(players, "&7" + player.getName() + " > " + target.getName() + ": " + builder);
                                 }
                             }
                         }

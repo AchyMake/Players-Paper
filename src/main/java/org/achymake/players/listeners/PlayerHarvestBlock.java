@@ -7,14 +7,13 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerHarvestBlockEvent;
 
-public class PlayerHarvestBlock implements Listener {
-    private final Userdata userdata;
-    public PlayerHarvestBlock(Players plugin) {
-        userdata = plugin.getUserdata();
+public record PlayerHarvestBlock(Players plugin) implements Listener {
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerHarvestBlock(PlayerHarvestBlockEvent event) {
-        if (!(userdata.isFrozen(event.getPlayer()) || userdata.isJailed(event.getPlayer())))return;
+        if (!(getUserdata().isFrozen(event.getPlayer()) || getUserdata().isJailed(event.getPlayer())))return;
         event.setCancelled(true);
     }
 }

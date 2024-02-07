@@ -15,18 +15,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UUIDCommand implements CommandExecutor, TabCompleter {
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Server getServer() {
+        return plugin.getServer();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
     public UUIDCommand(Players plugin) {
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
-                message.send(player, offlinePlayer.getName() + ":&a " + offlinePlayer.getUniqueId());
+                getMessage().send(player, offlinePlayer.getName() + ":&a " + offlinePlayer.getUniqueId());
             }
         }
         return true;
@@ -36,7 +40,7 @@ public class UUIDCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player) {
             if (args.length == 1) {
-                for (OfflinePlayer offlinePlayer : server.getOfflinePlayers()) {
+                for (OfflinePlayer offlinePlayer : getServer().getOfflinePlayers()) {
                     commands.add(offlinePlayer.getName());
                 }
             }

@@ -1,9 +1,7 @@
 package org.achymake.players.commands;
 
 import org.achymake.players.Players;
-import org.achymake.players.api.VaultEconomyProvider;
-import org.achymake.players.data.Message;
-import org.achymake.players.data.Userdata;
+import org.achymake.players.data.*;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
@@ -18,38 +16,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PayCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final FileConfiguration config;
-    private final VaultEconomyProvider economyProvider;
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
+    }
+    private Economy getEconomy() {
+        return plugin.getEconomy();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public PayCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        config = plugin.getConfig();
-        economyProvider = plugin.getEconomyProvider();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 2) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
-                if (userdata.exist(offlinePlayer)) {
+                if (getUserdata().exist(offlinePlayer)) {
                     double amount = Double.parseDouble(args[1]);
-                    if (amount >= config.getDouble("economy.minimum-payment")) {
-                        if (economyProvider.has(player, amount)) {
-                            economyProvider.withdrawPlayer(player, amount);
-                            economyProvider.depositPlayer(offlinePlayer, amount);
-                            message.send(player, "&6You paid&f " + offlinePlayer.getName() + "&a " + economyProvider.currencyNamePlural() + economyProvider.format(amount));
+                    if (amount >= getConfig().getDouble("economy.minimum-payment")) {
+                        if (getEconomy().has(player, amount)) {
+                            getEconomy().remove(player, amount);
+                            getEconomy().add(offlinePlayer, amount);
+                            getMessage().send(player, "&6You paid&f " + offlinePlayer.getName() + "&a " + getEconomy().currency() + getEconomy().format(amount));
                         } else {
-                            message.send(player, "&cYou don't have&a " + economyProvider.currencyNamePlural() + economyProvider.format(amount) + "&c to pay&f " + offlinePlayer.getName());
+                            getMessage().send(player, "&cYou don't have&a " + getEconomy().currency() + getEconomy().format(amount) + "&c to pay&f " + offlinePlayer.getName());
                         }
                     } else {
-                        message.send(player, "&cYou have to pay at least&a " + economyProvider.currencyNamePlural() + economyProvider.format(config.getDouble("economy.minimum-payment")));
+                        getMessage().send(player, "&cYou have to pay at least&a " + getEconomy().currency() + getEconomy().format(getConfig().getDouble("economy.minimum-payment")));
                     }
                 } else {
-                    message.send(player, offlinePlayer.getName() + "&c has never joined");
+                    getMessage().send(player, offlinePlayer.getName() + "&c has never joined");
                 }
             }
         }
@@ -60,7 +65,7 @@ public class PayCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player) {
             if (args.length == 1) {
-                for (Player players : server.getOnlinePlayers()) {
+                for (Player players : getServer().getOnlinePlayers()) {
                     commands.add(players.getName());
                 }
             }

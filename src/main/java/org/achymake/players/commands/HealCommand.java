@@ -11,47 +11,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HealCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public HealCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 0) {
-                if (userdata.hasCooldown(player, "heal")) {
-                    message.sendActionBar(player, "&cYou have to wait&f " + userdata.getCooldown(player, "heal") + "&c seconds");
+                if (getUserdata().hasCooldown(player, "heal")) {
+                    getMessage().sendActionBar(player, "&cYou have to wait&f " + getUserdata().getCooldown(player, "heal") + "&c seconds");
                 } else {
                     player.setFoodLevel(20);
                     player.setHealth(player.getMaxHealth());
-                    message.sendActionBar(player, "&6Your health has been satisfied");
-                    userdata.addCooldown(player, "heal");
+                    getMessage().sendActionBar(player, "&6Your health has been satisfied");
+                    getUserdata().addCooldown(player, "heal");
                 }
             }
             if (args.length == 1) {
                 if (player.hasPermission("players.command.heal.others")) {
-                    Player target = server.getPlayerExact(args[0]);
+                    Player target = getServer().getPlayerExact(args[0]);
                     if (target != null) {
                         target.setFoodLevel(20);
                         target.setHealth(target.getMaxHealth());
-                        message.sendActionBar(target, "&6Your health has been satisfied by&f " + player.getName());
-                        message.send(player, "&6You satisfied&f " + target.getName() + "&6's health");
+                        getMessage().sendActionBar(target, "&6Your health has been satisfied by&f " + player.getName());
+                        getMessage().send(player, "&6You satisfied&f " + target.getName() + "&6's health");
                     }
                 }
             }
         }
         if (sender instanceof ConsoleCommandSender consoleCommandSender) {
             if (args.length == 1) {
-                Player target = server.getPlayerExact(args[0]);
+                Player target = getServer().getPlayerExact(args[0]);
                 if (target != null) {
                     target.setFoodLevel(20);
                     target.setHealth(target.getMaxHealth());
-                    message.sendActionBar(target, "&6Your health has been satisfied");
-                    message.send(consoleCommandSender, "You satisfied " + target.getName() + "'s health");
+                    getMessage().sendActionBar(target, "&6Your health has been satisfied");
+                    getMessage().send(consoleCommandSender, "You satisfied " + target.getName() + "'s health");
                 }
             }
         }
@@ -63,7 +68,7 @@ public class HealCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 if (player.hasPermission("players.command.heal.others")) {
-                    for (Player players : server.getOnlinePlayers()) {
+                    for (Player players : getServer().getOnlinePlayers()) {
                         commands.add(players.getName());
                     }
                 }

@@ -16,40 +16,46 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SetSpawnCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Spawn spawn;
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Spawn getSpawn() {
+        return plugin.getSpawn();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public SetSpawnCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        spawn = plugin.getSpawn();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 0) {
-                if (spawn.locationExist()) {
-                    spawn.setLocation(player.getLocation());
-                    message.send(player, "&6Spawn relocated");
+                if (getSpawn().locationExist()) {
+                    getSpawn().setLocation(player.getLocation());
+                    getMessage().send(player, "&6Spawn relocated");
                 } else {
-                    spawn.setLocation(player.getLocation());
-                    message.send(player, "&6Spawn has been set");
+                    getSpawn().setLocation(player.getLocation());
+                    getMessage().send(player, "&6Spawn has been set");
                 }
             }
             if (args.length == 1) {
-                OfflinePlayer offlinePlayer = server.getOfflinePlayer(args[0]);
-                if (userdata.exist(offlinePlayer)) {
-                    if (userdata.locationExist(offlinePlayer, "spawn")) {
-                        userdata.setLocation(offlinePlayer, "spawn", player.getLocation());
-                        message.send(player, offlinePlayer.getName() + "&6's spawn relocated");
+                OfflinePlayer offlinePlayer = getServer().getOfflinePlayer(args[0]);
+                if (getUserdata().exist(offlinePlayer)) {
+                    if (getUserdata().locationExist(offlinePlayer, "spawn")) {
+                        getUserdata().setLocation(offlinePlayer, "spawn", player.getLocation());
+                        getMessage().send(player, offlinePlayer.getName() + "&6's spawn relocated");
                     } else {
-                        userdata.setLocation(offlinePlayer, "spawn", player.getLocation());
-                        message.send(player, offlinePlayer.getName() + "&6's spawn set");
+                        getUserdata().setLocation(offlinePlayer, "spawn", player.getLocation());
+                        getMessage().send(player, offlinePlayer.getName() + "&6's spawn set");
                     }
                 } else {
-                    message.send(player, offlinePlayer.getName() + "&c has never joined");
+                    getMessage().send(player, offlinePlayer.getName() + "&c has never joined");
                 }
             }
         }
@@ -61,7 +67,7 @@ public class SetSpawnCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 if (player.hasPermission("players.command.setspawn.others")) {
-                    for (OfflinePlayer offlinePlayer : server.getOfflinePlayers()) {
+                    for (OfflinePlayer offlinePlayer : getServer().getOfflinePlayers()) {
                         commands.add(offlinePlayer.getName());
                     }
                 }

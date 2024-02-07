@@ -8,15 +8,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 
-public class PlayerShearEntity implements Listener {
-    private final Userdata userdata;
-    public PlayerShearEntity(Players plugin) {
-        userdata = plugin.getUserdata();
+public record PlayerShearEntity(Players plugin) implements Listener {
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerShearEntity(PlayerShearEntityEvent event) {
         Player player = event.getPlayer();
-        if (!(userdata.isFrozen(player) || userdata.isJailed(player)))return;
+        if (!(getUserdata().isFrozen(player) || getUserdata().isJailed(player)))return;
         event.setCancelled(true);
     }
 }

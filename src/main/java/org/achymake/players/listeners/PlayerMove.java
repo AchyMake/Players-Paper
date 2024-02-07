@@ -11,27 +11,26 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitScheduler;
 
-public class PlayerMove implements Listener {
-    private final Userdata userdata;
-    private final Message message;
-    private final BukkitScheduler scheduler = Bukkit.getScheduler();
-    public PlayerMove(Players plugin) {
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
+public record PlayerMove(Players plugin) implements Listener {
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private BukkitScheduler getScheduler() {
+        return Bukkit.getScheduler();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerMove(PlayerMoveEvent event) {
-        Player player = event.getPlayer();
         if (!event.hasChangedPosition())return;
-        if (userdata.isFrozen(player)) {
+        Player player = event.getPlayer();
+        if (getUserdata().isFrozen(player)) {
             event.setCancelled(true);
-        } else if (userdata.isVanished(player)) {
-            message.sendActionBar(player, "&6&lVanish:&a Enabled");
-        }
-        if (userdata.hasTaskID(player, "teleport")) {
-            message.sendActionBar(player, "&cYou moved before teleporting!");
-            scheduler.cancelTask(userdata.getTaskID(player, "teleport"));
-            userdata.removeTaskID(player, "teleport");
+        } else if (getUserdata().hasTaskID(player, "teleport")) {
+            getMessage().sendActionBar(player, "&cYou moved before teleporting!");
+            getScheduler().cancelTask(getUserdata().getTaskID(player, "teleport"));
+            getUserdata().removeTaskID(player, "teleport");
         }
     }
 }

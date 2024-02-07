@@ -9,17 +9,16 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityMountEvent;
 
-public class PlayerMount implements Listener {
-    private final Userdata userdata;
-    public PlayerMount(Players plugin) {
-        userdata = plugin.getUserdata();
+public record PlayerMount(Players plugin) implements Listener {
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerMount(EntityMountEvent event) {
         if (!event.getEntity().getType().equals(EntityType.PLAYER))return;
         if (event.getMount().getType().equals(EntityType.ARMOR_STAND))return;
         Player player = (Player) event.getEntity();
-        if (!(userdata.isFrozen(player) || userdata.isJailed(player)))return;
+        if (!(getUserdata().isFrozen(player) || getUserdata().isJailed(player)))return;
         event.setCancelled(true);
     }
 }

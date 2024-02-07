@@ -11,29 +11,30 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-public class AsyncPlayerChat implements Listener {
-    private final Userdata userdata;
-    private final Message message;
-    private final Discord discord;
-    public AsyncPlayerChat(Players plugin) {
-        userdata = plugin.getUserdata();
-        discord = plugin.getDiscord();
-        message = plugin.getMessage();
+public record AsyncPlayerChat(Players plugin) implements Listener {
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Discord getDiscord() {
+        return plugin.getDiscord();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
-        if (userdata.isMuted(player)) {
+        if (getUserdata().isMuted(player)) {
             event.setCancelled(true);
         } else {
-            String prefix = userdata.prefix(player);
-            String displayName = userdata.getDisplayName(player);
-            String suffix = userdata.suffix(player);
+            String prefix = getUserdata().prefix(player);
+            String displayName = getUserdata().getDisplayName(player);
+            String suffix = getUserdata().suffix(player);
             String output = event.getMessage();
             if (event.getPlayer().hasPermission("players.event.chat.color")) {
-                event.setMessage(message.addColor(output));
+                event.setMessage(getMessage().addColor(output));
             }
-            discord.send(player.getName(), output);
+            getDiscord().send(player.getName(), output);
             event.setFormat(prefix + displayName + suffix + ChatColor.WHITE + ": " + output);
         }
     }

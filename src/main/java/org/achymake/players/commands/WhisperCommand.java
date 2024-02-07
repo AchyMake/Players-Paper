@@ -14,22 +14,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WhisperCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Message message;
-    private final Server server;
-    public WhisperCommand(Players players) {
-        userdata = players.getUserdata();
-        message = players.getMessage();
-        server = players.getServer();
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    public WhisperCommand(Players plugin) {
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (userdata.isMuted(player) || userdata.isJailed(player)) {
+            if (getUserdata().isMuted(player) || getUserdata().isJailed(player)) {
                 return false;
             }
             if (args.length > 1) {
-                Player target = server.getPlayerExact(args[0]);
+                Player target = getServer().getPlayerExact(args[0]);
                 if (target != null) {
                     StringBuilder stringBuilder = new StringBuilder();
                     for(int i = 1; i < args.length; i++) {
@@ -37,12 +42,12 @@ public class WhisperCommand implements CommandExecutor, TabCompleter {
                         stringBuilder.append(" ");
                     }
                     String builder = stringBuilder.toString().strip();
-                    message.send(player, "&7You > " + target.getName() + ": " + builder);
-                    message.send(target, "&7" + player.getName() + " > You: " + builder);
-                    userdata.setString(target, "last-whisper", target.getUniqueId().toString());
-                    for (Player players : server.getOnlinePlayers()) {
+                    getMessage().send(player, "&7You > " + target.getName() + ": " + builder);
+                    getMessage().send(target, "&7" + player.getName() + " > You: " + builder);
+                    getUserdata().setString(target, "last-whisper", target.getUniqueId().toString());
+                    for (Player players : getServer().getOnlinePlayers()) {
                         if (players.hasPermission("players.notify.whispers")) {
-                            message.send(players, "&7" + player.getName() + " > " + target.getName() + ": " + builder);
+                            getMessage().send(players, "&7" + player.getName() + " > " + target.getName() + ": " + builder);
                         }
                     }
                 }
@@ -55,8 +60,10 @@ public class WhisperCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player) {
             if (args.length == 1) {
-                for (Player players : server.getOnlinePlayers()) {
-                    commands.add(players.getName());
+                for (Player players : getServer().getOnlinePlayers()) {
+                    if (!plugin.getVanished().contains(players)) {
+                        commands.add(players.getName());
+                    }
                 }
             }
         }

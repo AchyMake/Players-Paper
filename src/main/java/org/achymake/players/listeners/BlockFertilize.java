@@ -8,15 +8,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFertilizeEvent;
 
-public class BlockFertilize implements Listener {
-    private final Userdata userdata;
-    public BlockFertilize(Players plugin) {
-        userdata = plugin.getUserdata();
+public record BlockFertilize(Players plugin) implements Listener {
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onBlockFertilize(BlockFertilizeEvent event) {
         Player player = event.getPlayer();
-        if (!(userdata.isFrozen(player) || userdata.isJailed(player)))return;
+        if (!(getUserdata().isFrozen(player) || getUserdata().isJailed(player)))return;
         event.setCancelled(true);
     }
 }

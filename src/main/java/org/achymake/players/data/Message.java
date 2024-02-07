@@ -7,11 +7,7 @@ import org.bukkit.entity.Player;
 
 import java.util.logging.Level;
 
-public class Message {
-    private final Players plugin;
-    public Message(Players players) {
-        plugin = players;
-    }
+public record Message(Players plugin) {
     public void send(ConsoleCommandSender sender, String message) {
         sender.sendMessage(message);
     }

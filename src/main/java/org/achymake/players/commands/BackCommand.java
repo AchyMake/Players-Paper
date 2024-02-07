@@ -10,33 +10,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BackCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Server server;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public BackCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            if (userdata.isFrozen(player) || userdata.isJailed(player)) {
+            if (getUserdata().isFrozen(player) || getUserdata().isJailed(player)) {
                 return false;
             } else {
                 if (args.length == 0) {
-                    String worldName = userdata.getLocation(player, "recent").getWorld().getName();
-                    if (player.hasPermission("players.command.back.world." + worldName)) {
-                        userdata.teleport(player, "recent", userdata.getLocation(player, "recent"));
-                    }
+                    teleportBack(player);
                 }
                 if (args.length == 1) {
                     if (player.hasPermission("players.command.back.others")) {
-                        Player target = server.getPlayerExact(args[0]);
+                        Player target = getServer().getPlayerExact(args[0]);
                         if (target != null) {
                             if (target == player) {
-                                userdata.teleportBack(target);
+                                teleportBack(player);
                             } else {
                                 if (!target.hasPermission("players.command.back.exempt")) {
-                                    userdata.teleportBack(target);
+                                    teleportBack(target);
                                 }
                             }
                         }
@@ -46,12 +47,12 @@ public class BackCommand implements CommandExecutor, TabCompleter {
         }
         if (sender instanceof ConsoleCommandSender) {
             if (args.length == 1) {
-                Player target = server.getPlayerExact(args[0]);
-                if (userdata.isFrozen(target) || userdata.isJailed(target)) {
+                Player target = getServer().getPlayerExact(args[0]);
+                if (getUserdata().isFrozen(target) || getUserdata().isJailed(target)) {
                     return false;
                 } else {
                     if (target != null) {
-                        userdata.teleportBack(target);
+                        teleportBack(target);
                     }
                 }
             }
@@ -64,7 +65,7 @@ public class BackCommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 if (player.hasPermission("players.command.back.others")) {
-                    for (Player players : server.getOnlinePlayers()) {
+                    for (Player players : getServer().getOnlinePlayers()) {
                         if (!players.hasPermission("players.command.back.exempt")) {
                             commands.add(players.getName());
                         }
@@ -73,5 +74,20 @@ public class BackCommand implements CommandExecutor, TabCompleter {
             }
         }
         return commands;
+    }
+    private void teleportBack(Player player) {
+        if (getUserdata().locationExist(player, "death")) {
+            if (player.hasPermission("players.command.back.death")) {
+                getUserdata().teleport(player, "death", getUserdata().getLocation(player, "death"));
+                getUserdata().setString(player, "locations.death", null);
+            } else {
+                getUserdata().teleport(player, "recent", getUserdata().getLocation(player, "recent"));
+            }
+        } else {
+            String worldName = getUserdata().getLocation(player, "recent").getWorld().getName();
+            if (player.hasPermission("players.command.back.world." + worldName)) {
+                getUserdata().teleport(player, "recent", getUserdata().getLocation(player, "recent"));
+            }
+        }
     }
 }

@@ -11,13 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MOTDCommand implements CommandExecutor, TabCompleter {
-    private final FileConfiguration config;
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public MOTDCommand(Players plugin) {
-        config = plugin.getConfig();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -31,7 +36,7 @@ public class MOTDCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2) {
             if (sender.hasPermission("players.command.motd.others")) {
-                Player target = server.getPlayerExact(args[1]);
+                Player target = getServer().getPlayerExact(args[1]);
                 if (target != null) {
                     sendMotd(target, args[0]);
                 }
@@ -44,11 +49,11 @@ public class MOTDCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player player) {
             if (args.length == 1) {
-                commands.addAll(config.getConfigurationSection("message-of-the-day").getKeys(false));
+                commands.addAll(getConfig().getConfigurationSection("message-of-the-day").getKeys(false));
             }
             if (args.length == 2) {
                 if (player.hasPermission("players.command.motd.others")) {
-                    for (Player players : server.getOnlinePlayers()) {
+                    for (Player players : getServer().getOnlinePlayers()) {
                         commands.add(players.getName());
                     }
                 }
@@ -57,13 +62,13 @@ public class MOTDCommand implements CommandExecutor, TabCompleter {
         return commands;
     }
     private void sendMotd(Player player, String motd) {
-        if (config.isList("message-of-the-day." + motd)) {
-            for (String messages : config.getStringList("message-of-the-day." + motd)) {
-                message.send(player, messages.replaceAll("%player%", player.getName()));
+        if (getConfig().isList("message-of-the-day." + motd)) {
+            for (String messages : getConfig().getStringList("message-of-the-day." + motd)) {
+                getMessage().send(player, messages.replaceAll("%player%", player.getName()));
             }
         }
-        if (config.isString("message-of-the-day." + motd)) {
-            message.send(player, config.getString("message-of-the-day." + motd).replaceAll("%player%", player.getName()));
+        if (getConfig().isString("message-of-the-day." + motd)) {
+            getMessage().send(player, getConfig().getString("message-of-the-day." + motd).replaceAll("%player%", player.getName()));
         }
     }
 }

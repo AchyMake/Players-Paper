@@ -13,22 +13,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SetWarpCommand implements CommandExecutor, TabCompleter {
-    private final Warps warps;
-    private final Message message;
+    private final Players plugin;
+    private Warps getWarps() {
+        return plugin.getWarps();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
     public SetWarpCommand(Players plugin) {
-        warps = plugin.getWarps();
-        message = plugin.getMessage();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 1) {
-                if (warps.locationExist(args[0])) {
-                    warps.setLocation(args[0], player.getLocation());
-                    message.send(player, args[0] + "&6 has been relocated");
+                if (getWarps().locationExist(args[0])) {
+                    getWarps().setLocation(args[0], player.getLocation());
+                    getMessage().send(player, args[0] + "&6 has been relocated");
                 } else {
-                    warps.setLocation(args[0], player.getLocation());
-                    message.send(player, args[0] + "&6 has been set");
+                    getWarps().setLocation(args[0], player.getLocation());
+                    getMessage().send(player, args[0] + "&6 has been set");
                 }
             }
         }
@@ -39,7 +43,7 @@ public class SetWarpCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player) {
             if (args.length == 1) {
-                commands.addAll(warps.getWarps());
+                commands.addAll(getWarps().getWarps());
             }
         }
         return commands;

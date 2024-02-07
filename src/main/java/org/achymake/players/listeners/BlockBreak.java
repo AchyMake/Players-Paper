@@ -14,34 +14,36 @@ import org.bukkit.event.block.BlockBreakEvent;
 
 import java.text.MessageFormat;
 
-public class BlockBreak implements Listener {
-    private final FileConfiguration config;
-    private final Userdata userdata;
-    private final Message message;
-    private final Server server;
-    public BlockBreak(Players plugin) {
-        config = plugin.getConfig();
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+public record BlockBreak(Players plugin) implements Listener {
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
+    }
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
-        if (userdata.isFrozen(player) || userdata.isJailed(player)) {
+        if (getUserdata().isFrozen(player) || getUserdata().isJailed(player)) {
             event.setCancelled(true);
         } else {
-            if (!config.getBoolean("notification.enable"))return;
+            if (!getConfig().getBoolean("notification.enable"))return;
             Block block = event.getBlock();
-            if (!config.getStringList("notification.block-break").contains(block.getType().toString()))return;
+            if (!getConfig().getStringList("notification.block-break").contains(block.getType().toString()))return;
             String worldName = block.getWorld().getName();
             int x = block.getX();
             int y = block.getY();
             int z = block.getZ();
-            for (Player players : server.getOnlinePlayers()) {
+            for (Player players : getServer().getOnlinePlayers()) {
                 if (!players.hasPermission("players.event.block-break.notify"))return;
-                for (String messages : config.getStringList("notification.message")) {
-                    players.sendMessage(message.addColor(MessageFormat.format(messages, player.getName(), block.getType().toString(), worldName, x, y, z)));
+                for (String messages : getConfig().getStringList("notification.message")) {
+                    players.sendMessage(getMessage().addColor(MessageFormat.format(messages, player.getName(), block.getType().toString(), worldName, x, y, z)));
                 }
             }
         }

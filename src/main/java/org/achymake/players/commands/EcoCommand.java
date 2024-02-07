@@ -15,17 +15,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EcoCommand implements CommandExecutor, TabCompleter {
-    private final FileConfiguration config;
-    private final Userdata userdata;
-    private final Economy economy;
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
+    }
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Economy getEconomy() {
+        return plugin.getEconomy();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public EcoCommand(Players plugin) {
-        config = plugin.getConfig();
-        userdata = plugin.getUserdata();
-        economy = plugin.getEconomy();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -33,11 +40,11 @@ public class EcoCommand implements CommandExecutor, TabCompleter {
             if (args.length == 2) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                 if (args[0].equalsIgnoreCase("reset")) {
-                    if (userdata.exist(offlinePlayer)) {
-                        economy.resetEconomy(offlinePlayer);
-                        message.send(player, "&6You reset&f " + offlinePlayer.getName() + "&6 account to&a " + economy.getCurrency() + economy.getFormat(config.getDouble("economy.starting-balance")));
+                    if (getUserdata().exist(offlinePlayer)) {
+                        getEconomy().reset(offlinePlayer);
+                        getMessage().send(player, "&6You reset&f " + offlinePlayer.getName() + "&6 account to&a " + getEconomy().currency() + getEconomy().format(getConfig().getDouble("economy.starting-balance")));
                     } else {
-                        message.send(player, offlinePlayer.getName() + "&c has never joined");
+                        getMessage().send(player, offlinePlayer.getName() + "&c has never joined");
                     }
                 }
             }
@@ -45,27 +52,27 @@ public class EcoCommand implements CommandExecutor, TabCompleter {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                 double value = Double.parseDouble(args[2]);
                 if (args[0].equalsIgnoreCase("add")) {
-                    if (userdata.exist(offlinePlayer)) {
-                        economy.addEconomy(offlinePlayer, value);
-                        message.send(player, "&6You added&a " + economy.getCurrency() + economy.getFormat(value) + "&6 to&f " + offlinePlayer.getName() + "&6 account");
+                    if (getUserdata().exist(offlinePlayer)) {
+                        getEconomy().add(offlinePlayer, value);
+                        getMessage().send(player, "&6You added&a " + getEconomy().currency() + getEconomy().format(value) + "&6 to&f " + offlinePlayer.getName() + "&6 account");
                     } else {
-                        message.send(player, offlinePlayer.getName() + "&c has never joined");
+                        getMessage().send(player, offlinePlayer.getName() + "&c has never joined");
                     }
                 }
                 if (args[0].equalsIgnoreCase("remove")) {
-                    if (userdata.exist(offlinePlayer)) {
-                        economy.removeEconomy(offlinePlayer, value);
-                        message.send(player, "&6You removed&a " + economy.getCurrency() + economy.getFormat(value) + "&6 from&f " + offlinePlayer.getName() + "&6 account");
+                    if (getUserdata().exist(offlinePlayer)) {
+                        getEconomy().remove(offlinePlayer, value);
+                        getMessage().send(player, "&6You removed&a " + getEconomy().currency() + getEconomy().format(value) + "&6 from&f " + offlinePlayer.getName() + "&6 account");
                     } else {
-                        message.send(player, offlinePlayer.getName() + "&c has never joined");
+                        getMessage().send(player, offlinePlayer.getName() + "&c has never joined");
                     }
                 }
                 if (args[0].equalsIgnoreCase("set")) {
-                    if (userdata.exist(offlinePlayer)) {
-                        economy.setEconomy(offlinePlayer, value);
-                        message.send(player, "&6You set&a " + economy.getCurrency() + economy.getFormat(value) + "&6 to&f " + offlinePlayer.getName() + "&6 account");
+                    if (getUserdata().exist(offlinePlayer)) {
+                        getEconomy().set(offlinePlayer, value);
+                        getMessage().send(player, "&6You set&a " + getEconomy().currency() + getEconomy().format(value) + "&6 to&f " + offlinePlayer.getName() + "&6 account");
                     } else {
-                        message.send(player, offlinePlayer.getName() + "&c has never joined");
+                        getMessage().send(player, offlinePlayer.getName() + "&c has never joined");
                     }
                 }
             }
@@ -74,11 +81,11 @@ public class EcoCommand implements CommandExecutor, TabCompleter {
             if (args.length == 2) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                 if (args[0].equalsIgnoreCase("reset")) {
-                    if (userdata.exist(offlinePlayer)) {
-                        economy.resetEconomy(offlinePlayer);
-                        message.send(consoleCommandSender, "You reset " + offlinePlayer.getName() + " account to " + economy.getCurrency() + economy.getFormat(config.getDouble("economy.starting-balance")));
+                    if (getUserdata().exist(offlinePlayer)) {
+                        getEconomy().reset(offlinePlayer);
+                        getMessage().send(consoleCommandSender, "You reset " + offlinePlayer.getName() + " account to " + getEconomy().currency() + getEconomy().format(getConfig().getDouble("economy.starting-balance")));
                     } else {
-                        message.send(consoleCommandSender, offlinePlayer.getName() + " has never joined");
+                        getMessage().send(consoleCommandSender, offlinePlayer.getName() + " has never joined");
                     }
                 }
             }
@@ -86,27 +93,27 @@ public class EcoCommand implements CommandExecutor, TabCompleter {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                 double value = Double.parseDouble(args[2]);
                 if (args[0].equalsIgnoreCase("add")) {
-                    if (userdata.exist(offlinePlayer)) {
-                        economy.addEconomy(offlinePlayer, value);
-                        message.send(consoleCommandSender, "You added " + economy.getCurrency() + economy.getFormat(value) + " to " + offlinePlayer.getName() + " account");
+                    if (getUserdata().exist(offlinePlayer)) {
+                        getEconomy().add(offlinePlayer, value);
+                        getMessage().send(consoleCommandSender, "You added " + getEconomy().currency() + getEconomy().format(value) + " to " + offlinePlayer.getName() + " account");
                     } else {
-                        message.send(consoleCommandSender, offlinePlayer.getName() + " has never joined");
+                        getMessage().send(consoleCommandSender, offlinePlayer.getName() + " has never joined");
                     }
                 }
                 if (args[0].equalsIgnoreCase("remove")) {
-                    if (userdata.exist(offlinePlayer)) {
-                        economy.removeEconomy(offlinePlayer, value);
-                        message.send(consoleCommandSender, "You removed " + economy.getCurrency() + economy.getFormat(value) + " from " + offlinePlayer.getName() + " account");
+                    if (getUserdata().exist(offlinePlayer)) {
+                        getEconomy().remove(offlinePlayer, value);
+                        getMessage().send(consoleCommandSender, "You removed " + getEconomy().currency() + getEconomy().format(value) + " from " + offlinePlayer.getName() + " account");
                     } else {
-                        message.send(consoleCommandSender, offlinePlayer.getName() + " has never joined");
+                        getMessage().send(consoleCommandSender, offlinePlayer.getName() + " has never joined");
                     }
                 }
                 if (args[0].equalsIgnoreCase("set")) {
-                    if (userdata.exist(offlinePlayer)) {
-                        economy.setEconomy(offlinePlayer, value);
-                        message.send(consoleCommandSender, "You set " + economy.getCurrency() + economy.getFormat(value) + " to " + offlinePlayer.getName() + " account");
+                    if (getUserdata().exist(offlinePlayer)) {
+                        getEconomy().set(offlinePlayer, value);
+                        getMessage().send(consoleCommandSender, "You set " + getEconomy().currency() + getEconomy().format(value) + " to " + offlinePlayer.getName() + " account");
                     } else {
-                        message.send(consoleCommandSender, offlinePlayer.getName() + " has never joined");
+                        getMessage().send(consoleCommandSender, offlinePlayer.getName() + " has never joined");
                     }
                 }
             }
@@ -124,7 +131,7 @@ public class EcoCommand implements CommandExecutor, TabCompleter {
                 commands.add("set");
             }
             if (args.length == 2) {
-                for (OfflinePlayer players : server.getOfflinePlayers()) {
+                for (OfflinePlayer players : getServer().getOfflinePlayers()) {
                     commands.add(players.getName());
                 }
             }

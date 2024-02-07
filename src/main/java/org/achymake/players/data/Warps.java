@@ -13,20 +13,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-public class Warps {
-    private final File dataFolder;
-    private final Message message;
-    private final Server server;
-    public Warps(Players plugin) {
-        dataFolder = plugin.getDataFolder();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+public record Warps(Players plugin) {
+    private File getDataFolder() {
+        return plugin.getDataFolder();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
     }
     public boolean exist() {
         return getFile().exists();
     }
     private File getFile() {
-        return new File(dataFolder, "warps.yml");
+        return new File(getDataFolder(), "warps.yml");
     }
     public FileConfiguration getConfig() {
         return YamlConfiguration.loadConfiguration(getFile());
@@ -46,7 +47,7 @@ public class Warps {
         try {
             config.save(file);
         } catch (IOException e) {
-            message.sendLog(Level.WARNING, e.getMessage());
+            getMessage().sendLog(Level.WARNING, e.getMessage());
         }
     }
     public Location getLocation(String warpName) {
@@ -57,7 +58,7 @@ public class Warps {
             double z = getConfig().getDouble(warpName + ".z");
             float yaw = getConfig().getLong(warpName + ".yaw");
             float pitch = getConfig().getLong(warpName + ".pitch");
-            return new Location(server.getWorld(worldName), x, y, z, yaw, pitch);
+            return new Location(getServer().getWorld(worldName), x, y, z, yaw, pitch);
         } else {
             return null;
         }
@@ -73,7 +74,7 @@ public class Warps {
             try {
                 config.save(file);
             } catch (IOException e) {
-                message.sendLog(Level.WARNING, e.getMessage());
+                getMessage().sendLog(Level.WARNING, e.getMessage());
             }
         }
     }
@@ -84,14 +85,14 @@ public class Warps {
             try {
                 config.load(file);
             } catch (IOException | InvalidConfigurationException e) {
-                message.sendLog(Level.WARNING, e.getMessage());
+                getMessage().sendLog(Level.WARNING, e.getMessage());
             }
         } else {
             config.options().copyDefaults(true);
             try {
                 config.save(file);
             } catch (IOException e) {
-                message.sendLog(Level.WARNING, e.getMessage());
+                getMessage().sendLog(Level.WARNING, e.getMessage());
             }
         }
     }

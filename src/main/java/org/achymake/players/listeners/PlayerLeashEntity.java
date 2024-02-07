@@ -9,22 +9,22 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
 
-public class PlayerLeashEntity implements Listener {
-    private final Userdata userdata;
-    private final Message message;
-    public PlayerLeashEntity(Players plugin) {
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
+public record PlayerLeashEntity(Players plugin) implements Listener {
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerLeashEntity(PlayerLeashEntityEvent event) {
         Player player = event.getPlayer();
-        if (userdata.isFrozen(player)) {
+        if (getUserdata().isFrozen(player)) {
             event.setCancelled(true);
-            message.send(player, "&c&lHey!&7 Sorry, but you are not allowed to do that while frozen");
-        } else if (userdata.isJailed(player)) {
+            getMessage().send(player, "&c&lHey!&7 Sorry, but you are not allowed to do that while frozen");
+        } else if (getUserdata().isJailed(player)) {
             event.setCancelled(true);
-            message.send(player, "&c&lHey!&7 Sorry, but you are not allowed to do that while jailed");
+            getMessage().send(player, "&c&lHey!&7 Sorry, but you are not allowed to do that while jailed");
         }
     }
 }

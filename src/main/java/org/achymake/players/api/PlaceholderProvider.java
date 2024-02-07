@@ -45,14 +45,14 @@ public class PlaceholderProvider extends PlaceholderExpansion {
                 return Players.getInstance().getUserdata().getConfig(player).getString("display-name");
             }
             if (params.equals("vanished")) {
-                return String.valueOf(Players.getInstance().getUserdata().isVanished(player));
+                return String.valueOf(Players.getInstance().getVanished().contains(player));
             }
             if (params.equals("online_players")) {
-                return String.valueOf(player.getServer().getOnlinePlayers().size() - Players.getInstance().getUserdata().getVanished().size());
+                return String.valueOf(player.getServer().getOnlinePlayers().size() - Players.getInstance().getVanished().size());
             }
             if (params.equals("account")) {
                 Economy economy = Players.getInstance().getEconomy();
-                return economy.getCurrency()+economy.getFormat(economy.getEconomy(player));
+                return economy.currency() + economy.format(economy.get(player));
             }
         }
         return super.onPlaceholderRequest(player, params);

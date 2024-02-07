@@ -8,15 +8,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockReceiveGameEvent;
 
-public class BlockReceiveGame implements Listener {
-    private final Userdata userdata;
-    public BlockReceiveGame(Players plugin) {
-        userdata = plugin.getUserdata();
+public record BlockReceiveGame(Players plugin) implements Listener {
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onBlockReceiveGame(BlockReceiveGameEvent event) {
         if (!(event.getEntity() instanceof Player player))return;
-        if (!(userdata.isFrozen(player) || userdata.isJailed(player) || userdata.isVanished(player)))return;
+        if (!(getUserdata().isFrozen(player) || getUserdata().isJailed(player) || getUserdata().isVanished(player)))return;
         event.setCancelled(true);
     }
 }

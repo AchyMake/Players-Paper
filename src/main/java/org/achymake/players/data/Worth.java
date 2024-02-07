@@ -12,18 +12,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-public class Worth {
-    private final File dataFolder;
-    private final Message message;
-    public Worth(Players plugin) {
-        dataFolder = plugin.getDataFolder();
-        message = plugin.getMessage();
+public record Worth(Players plugin) {
+    private File getDataFolder() {
+        return plugin.getDataFolder();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
     }
     public boolean exist() {
         return getFile().exists();
     }
     public File getFile() {
-        return new File(dataFolder, "worth.yml");
+        return new File(getDataFolder(), "worth.yml");
     }
     public FileConfiguration getConfig() {
         return YamlConfiguration.loadConfiguration(getFile());
@@ -32,7 +32,7 @@ public class Worth {
         return new ArrayList<>(getConfig().getKeys(false));
     }
     public boolean isSellable(Material material) {
-        return getConfig().getKeys(false).contains(material.toString());
+        return getConfig().isDouble(material.toString());
     }
     public double getWorth(Material material) {
         return getConfig().getDouble(material.toString());
@@ -45,14 +45,14 @@ public class Worth {
             try {
                 config.save(file);
             } catch (IOException e) {
-                message.sendLog(Level.WARNING, e.getMessage());
+                getMessage().sendLog(Level.WARNING, e.getMessage());
             }
         } else {
             config.set(material.toString(), null);
             try {
                 config.save(file);
             } catch (IOException e) {
-                message.sendLog(Level.WARNING, e.getMessage());
+                getMessage().sendLog(Level.WARNING, e.getMessage());
             }
         }
     }
@@ -63,14 +63,14 @@ public class Worth {
             try {
                 config.load(file);
             } catch (IOException | InvalidConfigurationException e) {
-                message.sendLog(Level.WARNING, e.getMessage());
+                getMessage().sendLog(Level.WARNING, e.getMessage());
             }
         } else {
             config.options().copyDefaults(true);
             try {
                 config.save(file);
             } catch (IOException e) {
-                message.sendLog(Level.WARNING, e.getMessage());
+                getMessage().sendLog(Level.WARNING, e.getMessage());
             }
         }
     }

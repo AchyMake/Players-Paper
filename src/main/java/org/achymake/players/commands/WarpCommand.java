@@ -12,57 +12,63 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WarpCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Warps warps;
-    private final Message message;
-    private final Server server;
-    public WarpCommand(Players players) {
-        userdata = players.getUserdata();
-        warps = players.getWarps();
-        message = players.getMessage();
-        server = players.getServer();
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Warps getWarps() {
+        return plugin.getWarps();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    public WarpCommand(Players plugin) {
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 0) {
-                if (userdata.isFrozen(player) || userdata.isJailed(player)) {
+                if (getUserdata().isFrozen(player) || getUserdata().isJailed(player)) {
                     return false;
                 } else {
-                    if (warps.getWarps().isEmpty()) {
-                        message.send(player, "&cWarps is currently empty");
+                    if (getWarps().getWarps().isEmpty()) {
+                        getMessage().send(player, "&cWarps is currently empty");
                     } else {
-                        message.send(player, "&6Warps:");
-                        for (String warps : warps.getWarps()) {
-                            message.send(player, "- " + warps);
+                        getMessage().send(player, "&6Warps:");
+                        for (String warps : getWarps().getWarps()) {
+                            getMessage().send(player, "- " + warps);
                         }
                     }
                 }
             }
             if (args.length == 1) {
-                if (userdata.isFrozen(player) || userdata.isJailed(player)) {
+                if (getUserdata().isFrozen(player) || getUserdata().isJailed(player)) {
                     return false;
                 } else {
                     if (player.hasPermission("players.command.warp." + args[0])) {
-                        if (warps.locationExist(args[0])) {
-                            userdata.teleport(player, args[0], warps.getLocation(args[0]));
+                        if (getWarps().locationExist(args[0])) {
+                            getUserdata().teleport(player, args[0], getWarps().getLocation(args[0]));
                         } else {
-                            message.send(player, args[0] + "&c does not exist");
+                            getMessage().send(player, args[0] + "&c does not exist");
                         }
                     }
                 }
             }
             if (args.length == 2) {
                 if (player.hasPermission("players.command.warp.others")) {
-                    Player target = server.getPlayerExact(args[1]);
+                    Player target = getServer().getPlayerExact(args[1]);
                     if (target != null) {
-                        if (userdata.isFrozen(target) || userdata.isJailed(target)) {
+                        if (getUserdata().isFrozen(target) || getUserdata().isJailed(target)) {
                             return false;
                         } else {
-                            if (warps.locationExist(args[0])) {
-                                userdata.teleport(target, args[0], warps.getLocation(args[0]));
+                            if (getWarps().locationExist(args[0])) {
+                                getUserdata().teleport(target, args[0], getWarps().getLocation(args[0]));
                             } else {
-                                message.send(player, args[0] + "&c does not exist");
+                                getMessage().send(player, args[0] + "&c does not exist");
                             }
                         }
                     }
@@ -71,15 +77,15 @@ public class WarpCommand implements CommandExecutor, TabCompleter {
         }
         if (sender instanceof ConsoleCommandSender consoleCommandSender) {
             if (args.length == 2) {
-                Player target = server.getPlayerExact(args[1]);
+                Player target = getServer().getPlayerExact(args[1]);
                 if (target != null) {
-                    if (userdata.isFrozen(target) || userdata.isJailed(target)) {
+                    if (getUserdata().isFrozen(target) || getUserdata().isJailed(target)) {
                         return false;
                     } else {
-                        if (warps.locationExist(args[0])) {
-                            userdata.teleport(target, args[0], warps.getLocation(args[0]));
+                        if (getWarps().locationExist(args[0])) {
+                            getUserdata().teleport(target, args[0], getWarps().getLocation(args[0]));
                         } else {
-                            message.send(consoleCommandSender, args[0] + " does not exist");
+                            getMessage().send(consoleCommandSender, args[0] + " does not exist");
                         }
                     }
                 }
@@ -93,7 +99,7 @@ public class WarpCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player player) {
             if (args.length == 1) {
-                for (String warps : warps.getWarps()) {
+                for (String warps : getWarps().getWarps()) {
                     if (player.hasPermission("players.command.warp." + warps)) {
                         commands.add(warps);
                     }
@@ -101,7 +107,7 @@ public class WarpCommand implements CommandExecutor, TabCompleter {
             }
             if (args.length == 2) {
                 if (player.hasPermission("players.command.warp.others")) {
-                    for (Player players : server.getOnlinePlayers()) {
+                    for (Player players : getServer().getOnlinePlayers()) {
                         commands.add(players.getName());
                     }
                 }

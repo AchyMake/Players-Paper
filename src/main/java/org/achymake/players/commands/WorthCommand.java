@@ -15,21 +15,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WorthCommand implements CommandExecutor, TabCompleter {
-    private final Worth worth;
-    private final Message message;
-    private final Economy economy;
+    private final Players plugin;
+    private Worth getWorth() {
+        return plugin.getWorth();
+    }
+    private Economy getEconomy() {
+        return plugin.getEconomy();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
     public WorthCommand(Players plugin) {
-        worth = plugin.getWorth();
-        economy = plugin.getEconomy();
-        message = plugin.getMessage();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 Material material = Material.valueOf(args[0].toUpperCase());
-                if (worth.isSellable(material)) {
-                    message.send(player, material + "&6 is worth:&a " + economy.getCurrency() + economy.getFormat(worth.getWorth(material)));
+                if (getWorth().isSellable(material)) {
+                    getMessage().send(player, material + "&6 is worth:&a " + getEconomy().currency() + getEconomy().format(getWorth().getWorth(material)));
                 }
             }
         }
@@ -40,7 +45,7 @@ public class WorthCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player) {
             if (args.length == 1) {
-                for (String worthList : worth.getList()) {
+                for (String worthList : getWorth().getList()) {
                     commands.add(worthList.toLowerCase());
                 }
             }

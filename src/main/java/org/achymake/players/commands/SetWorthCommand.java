@@ -15,29 +15,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SetWorthCommand implements CommandExecutor, TabCompleter {
-    private final Worth worth;
-    private final Economy economy;
-    private final Message message;
+    private final Players plugin;
+    private Worth getWorth() {
+        return plugin.getWorth();
+    }
+    private Economy getEconomy() {
+        return plugin.getEconomy();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
     public SetWorthCommand(Players plugin) {
-        worth = plugin.getWorth();
-        economy = plugin.getEconomy();
-        message = plugin.getMessage();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 1) {
                 if (player.getInventory().getItemInMainHand().isEmpty()) {
-                    message.send(player, "&cYou have to hold an item");
+                    getMessage().send(player, "&cYou have to hold an item");
                 } else {
                     double value = Double.parseDouble(args[0]);
                     Material material = player.getInventory().getItemInMainHand().getType();
                     if (value > 0) {
-                        worth.setWorth(material, value);
-                        message.send(player, material + "&6 is now worth&a " + economy.getCurrency() + economy.getFormat(value));
+                        getWorth().setWorth(material, value);
+                        getMessage().send(player, material + "&6 is now worth&a " + getEconomy().currency() + getEconomy().format(value));
                     } else {
-                        worth.setWorth(material, value);
-                        message.send(player, material + "&6 is now worthless");
+                        getWorth().setWorth(material, value);
+                        getMessage().send(player, material + "&6 is now worthless");
                     }
                 }
             }

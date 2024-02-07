@@ -13,11 +13,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WalkSpeedCommand implements CommandExecutor, TabCompleter {
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Server getServer() {
+        return plugin.getServer();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
     public WalkSpeedCommand(Players plugin) {
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -25,21 +29,21 @@ public class WalkSpeedCommand implements CommandExecutor, TabCompleter {
             if (args.length == 1) {
                 float value = Float.parseFloat(args[0]);
                 player.setWalkSpeed(value);
-                message.send(player, "&6You're walk speed has changed to&f " + value);
+                getMessage().send(player, "&6You're walk speed has changed to&f " + value);
             }
             if (args.length == 2) {
                 if (player.hasPermission("players.command.walkspeed.others")) {
                     float value = Float.parseFloat(args[0]);
-                    Player target = server.getPlayerExact(args[1]);
+                    Player target = getServer().getPlayerExact(args[1]);
                     if (target != null) {
                         if (target.hasPermission("players.command.walkspeed.exempt")) {
-                            message.send(player, "&6You are not allowed to change&f " + target.getName() + " &6walk speed");
+                            getMessage().send(player, "&6You are not allowed to change&f " + target.getName() + " &6walk speed");
                         } else {
                             target.setFlySpeed(value);
-                            message.send(player, "&6You changed&f " + target.getName() + " &6walk speed to&f " + value);
+                            getMessage().send(player, "&6You changed&f " + target.getName() + " &6walk speed to&f " + value);
                         }
                     } else {
-                        message.send(player, args[1] + "&c is currently offline");
+                        getMessage().send(player, args[1] + "&c is currently offline");
                     }
                 }
             }
@@ -55,7 +59,7 @@ public class WalkSpeedCommand implements CommandExecutor, TabCompleter {
             }
             if (args.length == 2) {
                 if (player.hasPermission("players.command.walkspeed.others")) {
-                    for (Player players : server.getOnlinePlayers()) {
+                    for (Player players : getServer().getOnlinePlayers()) {
                         if (!players.hasPermission("players.command.walkspeed.exempt")) {
                             commands.add(players.getName());
                         }

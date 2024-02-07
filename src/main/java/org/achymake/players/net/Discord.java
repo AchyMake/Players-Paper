@@ -12,18 +12,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class Discord {
-    private final FileConfiguration config;
-    public Discord(Players plugin) {
-        config = plugin.getConfig();
+public record Discord(Players plugin) {
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
     }
     public void send(String username, String text) {
-        if (config.getBoolean("discord.enable")) {
+        if (getConfig().getBoolean("discord.enable")) {
             try {
                 JSONObject json = new JSONObject();
                 json.put("username", username);
                 json.put("content", text);
-                URL url = new URL(config.getString("discord.webhook"));
+                URL url = new URL(getConfig().getString("discord.webhook"));
                 HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
                 connection.addRequestProperty("Content-Type", "application/json");
                 connection.addRequestProperty("User-Agent", "Java-Discord-BY-Gelox_");

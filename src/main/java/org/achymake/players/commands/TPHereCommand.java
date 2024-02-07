@@ -13,20 +13,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TPHereCommand implements CommandExecutor, TabCompleter {
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Server getServer() {
+        return plugin.getServer();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
     public TPHereCommand(Players plugin) {
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 1) {
-                Player target = server.getPlayerExact(args[0]);
+                Player target = getServer().getPlayerExact(args[0]);
                 if (target != null) {
-                    message.sendActionBar(target, "&6Teleporting to&f " + player.getName());
-                    message.sendActionBar(player, "&6Teleporting&f " + target.getName() + "&6 to you");
+                    getMessage().sendActionBar(target, "&6Teleporting to&f " + player.getName());
+                    getMessage().sendActionBar(player, "&6Teleporting&f " + target.getName() + "&6 to you");
                     target.teleport(player.getLocation());
                 }
             }
@@ -38,7 +42,7 @@ public class TPHereCommand implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
         if (sender instanceof Player) {
             if (args.length == 1) {
-                for (Player players : server.getOnlinePlayers()) {
+                for (Player players : getServer().getOnlinePlayers()) {
                     commands.add(players.getName());
                 }
             }

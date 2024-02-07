@@ -16,24 +16,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomesCommand implements CommandExecutor, TabCompleter {
-    private final Userdata userdata;
-    private final Message message;
-    private final Server server;
+    private final Players plugin;
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
     public HomesCommand(Players plugin) {
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
-        server = plugin.getServer();
+        this.plugin = plugin;
     }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 0) {
-                if (userdata.getHomes(player).isEmpty()) {
-                    message.send(player, "&cYou haven't set any homes yet");
+                if (getUserdata().getHomes(player).isEmpty()) {
+                    getMessage().send(player, "&cYou haven't set any homes yet");
                 } else {
-                    message.send(player, "&6Homes:");
-                    for (String listedHomes : userdata.getHomes(player)) {
-                        message.send(player, "- " + listedHomes);
+                    getMessage().send(player, "&6Homes:");
+                    for (String listedHomes : getUserdata().getHomes(player)) {
+                        getMessage().send(player, "- " + listedHomes);
                     }
                 }
             }
@@ -44,38 +49,38 @@ public class HomesCommand implements CommandExecutor, TabCompleter {
                 if (arg0.equalsIgnoreCase("delete")) {
                     if (player.hasPermission("players.command.homes.delete")) {
                         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(target);
-                        if (userdata.exist(offlinePlayer)) {
-                            if (userdata.getHomes(offlinePlayer).contains(targetHome)) {
-                                userdata.setString(offlinePlayer, "homes." + targetHome, null);
-                                message.send(player, "&6Deleted&f " + targetHome + "&6 of&f " + target);
+                        if (getUserdata().exist(offlinePlayer)) {
+                            if (getUserdata().getHomes(offlinePlayer).contains(targetHome)) {
+                                getUserdata().setString(offlinePlayer, "homes." + targetHome, null);
+                                getMessage().send(player, "&6Deleted&f " + targetHome + "&6 of&f " + target);
                             } else {
-                                message.send(player, target + "&c doesn't have&f " + targetHome);
+                                getMessage().send(player, target + "&c doesn't have&f " + targetHome);
                             }
                         } else {
-                            message.send(player, target + "&c has never joined");
+                            getMessage().send(player, target + "&c has never joined");
                         }
                     }
                 }
                 if (arg0.equalsIgnoreCase("teleport")) {
                     if (player.hasPermission("players.command.homes.teleport")) {
-                        OfflinePlayer offlinePlayer = server.getOfflinePlayer(target);
-                        if (userdata.exist(offlinePlayer)) {
+                        OfflinePlayer offlinePlayer = getServer().getOfflinePlayer(target);
+                        if (getUserdata().exist(offlinePlayer)) {
                             if (targetHome.equalsIgnoreCase("bed")) {
                                 if (offlinePlayer.getBedSpawnLocation() != null) {
                                     player.teleport(offlinePlayer.getBedSpawnLocation());
-                                    message.send(player, "&6Teleporting&f " + targetHome + "&6 of&f " + target);
+                                    getMessage().send(player, "&6Teleporting&f " + targetHome + "&6 of&f " + target);
                                 }
                             } else {
-                                if (userdata.getHomes(offlinePlayer).contains(targetHome)) {
-                                    userdata.getHome(offlinePlayer, targetHome).getChunk().load();
-                                    message.send(player, "&6Teleporting&f " + targetHome + "&6 of&f " + target);
-                                    player.teleport(userdata.getHome(offlinePlayer, targetHome));
+                                if (getUserdata().getHomes(offlinePlayer).contains(targetHome)) {
+                                    getUserdata().getHome(offlinePlayer, targetHome).getChunk().load();
+                                    getMessage().send(player, "&6Teleporting&f " + targetHome + "&6 of&f " + target);
+                                    player.teleport(getUserdata().getHome(offlinePlayer, targetHome));
                                 } else {
-                                    message.send(player, target + "&c doesn't have&f " + targetHome);
+                                    getMessage().send(player, target + "&c doesn't have&f " + targetHome);
                                 }
                             }
                         } else {
-                            message.send(player, target + "&c has never joined");
+                            getMessage().send(player, target + "&c has never joined");
                         }
                     }
                 }
@@ -98,14 +103,14 @@ public class HomesCommand implements CommandExecutor, TabCompleter {
             if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("teleport")) {
                     if (player.hasPermission("players.command.homes.teleport")) {
-                        for (OfflinePlayer offlinePlayers : server.getOfflinePlayers()) {
+                        for (OfflinePlayer offlinePlayers : getServer().getOfflinePlayers()) {
                             commands.add(offlinePlayers.getName());
                         }
                     }
                 }
                 if (args[0].equalsIgnoreCase("delete")) {
                     if (player.hasPermission("players.command.homes.delete")) {
-                        for (OfflinePlayer offlinePlayers : server.getOfflinePlayers()) {
+                        for (OfflinePlayer offlinePlayers : getServer().getOfflinePlayers()) {
                             commands.add(offlinePlayers.getName());
                         }
                     }
@@ -113,9 +118,9 @@ public class HomesCommand implements CommandExecutor, TabCompleter {
             }
             if (args.length == 3) {
                 if (player.hasPermission("players.command.homes.teleport")) {
-                    OfflinePlayer offlinePlayer = server.getOfflinePlayer(args[1]);
-                    if (userdata.exist(offlinePlayer)) {
-                        commands.addAll(userdata.getHomes(offlinePlayer));
+                    OfflinePlayer offlinePlayer = getServer().getOfflinePlayer(args[1]);
+                    if (getUserdata().exist(offlinePlayer)) {
+                        commands.addAll(getUserdata().getHomes(offlinePlayer));
                     }
                 }
             }

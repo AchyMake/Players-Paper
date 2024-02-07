@@ -16,6 +16,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -31,8 +34,11 @@ public final class Players extends JavaPlugin {
     private static Worth worth;
     private static Message message;
     private static VaultEconomyProvider vaultEconomyProvider;
-    private static PluginManager pluginManager;
+    private static PluginManager manager;
     private static Discord discord;
+    private final List<Player> vanished = new ArrayList<>();
+    private final HashMap<String, Long> commandCooldown = new HashMap<>();
+    private final HashMap<String, Long> kitCooldown = new HashMap<>();
     @Override
     public void onEnable() {
         instance = this;
@@ -46,13 +52,10 @@ public final class Players extends JavaPlugin {
         worth = new Worth(this);
         reload();
         discord = new Discord(this);
-        pluginManager = getServer().getPluginManager();
-        if (isVaultDisable()) {
-            getServer().getPluginManager().disablePlugin(this);
-        }
-        if (isPlaceholderAPIDisable()) {
-            getPluginManager().disablePlugin(this);
-        }
+        manager = getServer().getPluginManager();
+        vaultEconomyProvider = new VaultEconomyProvider(this);
+        getServer().getServicesManager().register(net.milkbowl.vault.economy.Economy.class, getEconomyProvider(), this, ServicePriority.Normal);
+        new PlaceholderProvider().register();
         registerCommands();
         registerEvents();
         getDiscord().send(getServer().getVersion(), "Server has Started");
@@ -62,6 +65,8 @@ public final class Players extends JavaPlugin {
     @Override
     public void onDisable() {
         getServer().getScheduler().cancelTasks(this);
+        getVanished().clear();
+        getCommandCooldown().clear();
         getDiscord().send(getServer().getVersion(), "Server has Stopped");
         getMessage().sendLog(Level.INFO, "Disabled " + getDescription().getName() + " " + getDescription().getVersion());
     }
@@ -127,59 +132,37 @@ public final class Players extends JavaPlugin {
         getCommand("worth").setExecutor(new WorthCommand(this));
     }
     private void registerEvents() {
-        getPluginManager().registerEvents(new AsyncPlayerChat(this), this);
-        getPluginManager().registerEvents(new BlockBreak(this), this);
-        getPluginManager().registerEvents(new BlockFertilize(this), this);
-        getPluginManager().registerEvents(new BlockPlace(this), this);
-        getPluginManager().registerEvents(new BlockReceiveGame(this), this);
-        getPluginManager().registerEvents(new EntityDamageByEntity(this), this);
-        getPluginManager().registerEvents(new PlayerBucketEmpty(this), this);
-        getPluginManager().registerEvents(new PlayerBucketEntity(this), this);
-        getPluginManager().registerEvents(new PlayerBucketFill(this), this);
-        getPluginManager().registerEvents(new PlayerCommandPreprocess(this), this);
-        getPluginManager().registerEvents(new PlayerDeath(this), this);
-        getPluginManager().registerEvents(new PlayerHarvestBlock(this), this);
-        getPluginManager().registerEvents(new PlayerInteractPhysical(this), this);
-        getPluginManager().registerEvents(new PlayerJoin(this), this);
-        getPluginManager().registerEvents(new PlayerLeashEntity(this), this);
-        getPluginManager().registerEvents(new PlayerLogin(this), this);
-        getPluginManager().registerEvents(new PlayerMount(this), this);
-        getPluginManager().registerEvents(new PlayerMove(this), this);
-        getPluginManager().registerEvents(new PlayerQuit(this), this);
-        getPluginManager().registerEvents(new PlayerRespawn(this), this);
-        getPluginManager().registerEvents(new PlayerShearEntity(this), this);
-        getPluginManager().registerEvents(new PlayerSpawnLocation(this), this);
-        getPluginManager().registerEvents(new PlayerTeleport(this), this);
-        getPluginManager().registerEvents(new PrepareAnvil(this), this);
-        getPluginManager().registerEvents(new SignChange(this), this);
-    }
-    private boolean isVaultDisable() {
-        if (getServer().getPluginManager().isPluginEnabled("Vault")) {
-            vaultEconomyProvider = new VaultEconomyProvider(this);
-            getServer().getServicesManager().register(net.milkbowl.vault.economy.Economy.class, getEconomyProvider(), this, ServicePriority.Normal);
-            getMessage().sendLog(Level.INFO, "Hooked to 'Vault'");
-            return false;
-        } else {
-            getMessage().sendLog(Level.WARNING, "You have to install 'Vault'");
-            return true;
-        }
-    }
-    private boolean isPlaceholderAPIDisable() {
-        if (getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            new PlaceholderProvider().register();
-            getMessage().sendLog(Level.INFO, "Hooked to 'PlaceholderAPI'");
-            return false;
-        } else {
-            getMessage().sendLog(Level.WARNING, "You have to install 'PlaceholderAPI'");
-            return true;
-        }
+        getManager().registerEvents(new AsyncPlayerChat(this), this);
+        getManager().registerEvents(new BlockBreak(this), this);
+        getManager().registerEvents(new BlockFertilize(this), this);
+        getManager().registerEvents(new BlockPlace(this), this);
+        getManager().registerEvents(new BlockReceiveGame(this), this);
+        getManager().registerEvents(new EntityDamageByEntity(this), this);
+        getManager().registerEvents(new PlayerBucketEmpty(this), this);
+        getManager().registerEvents(new PlayerBucketEntity(this), this);
+        getManager().registerEvents(new PlayerBucketFill(this), this);
+        getManager().registerEvents(new PlayerCommandPreprocess(this), this);
+        getManager().registerEvents(new PlayerDeath(this), this);
+        getManager().registerEvents(new PlayerHarvestBlock(this), this);
+        getManager().registerEvents(new PlayerInteractPhysical(this), this);
+        getManager().registerEvents(new PlayerJoin(this), this);
+        getManager().registerEvents(new PlayerLeashEntity(this), this);
+        getManager().registerEvents(new PlayerLogin(this), this);
+        getManager().registerEvents(new PlayerMount(this), this);
+        getManager().registerEvents(new PlayerMove(this), this);
+        getManager().registerEvents(new PlayerQuit(this), this);
+        getManager().registerEvents(new PlayerRespawn(this), this);
+        getManager().registerEvents(new PlayerShearEntity(this), this);
+        getManager().registerEvents(new PlayerSpawnLocation(this), this);
+        getManager().registerEvents(new PlayerTeleport(this), this);
+        getManager().registerEvents(new PrepareAnvil(this), this);
+        getManager().registerEvents(new SignChange(this), this);
     }
     public void reload() {
         File file = new File(getDataFolder(), "config.yml");
         if (file.exists()) {
             try {
                 getConfig().load(file);
-                getConfig().save(file);
             } catch (IOException | InvalidConfigurationException e) {
                 getMessage().sendLog(Level.WARNING, e.getMessage());
             }
@@ -247,8 +230,17 @@ public final class Players extends JavaPlugin {
     public boolean notifyUpdate() {
         return getConfig().getBoolean("notify-update");
     }
-    public PluginManager getPluginManager() {
-        return pluginManager;
+    public PluginManager getManager() {
+        return manager;
+    }
+    public HashMap<String, Long> getKitCooldown() {
+        return kitCooldown;
+    }
+    public HashMap<String, Long> getCommandCooldown() {
+        return commandCooldown;
+    }
+    public List<Player> getVanished() {
+        return vanished;
     }
     public VaultEconomyProvider getEconomyProvider() {
         return vaultEconomyProvider;

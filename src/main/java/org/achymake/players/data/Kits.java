@@ -14,23 +14,21 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 
-public class Kits {
-    private final File dataFolder;
-    private final Message message;
-    private final HashMap<String, Long> cooldown = new HashMap<>();
-    public Kits(Players plugin) {
-        dataFolder = plugin.getDataFolder();
-        message = plugin.getMessage();
+public record Kits(Players plugin) {
+    private File getDataFolder() {
+        return plugin.getDataFolder();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
     }
     public boolean exist() {
         return getFile().exists();
     }
     public File getFile() {
-        return new File(dataFolder,"kits.yml");
+        return new File(getDataFolder(),"kits.yml");
     }
     public FileConfiguration getConfig() {
         return YamlConfiguration.loadConfiguration(getFile());
@@ -44,12 +42,12 @@ public class Kits {
             ItemStack item = new ItemStack(Material.valueOf(getConfig().getString(kitName + ".materials." + items + ".type")), getConfig().getInt(kitName + ".materials." + items + ".amount"));
             ItemMeta itemMeta = item.getItemMeta();
             if (getConfig().getKeys(true).contains(kitName+".materials." + items + ".name")) {
-                itemMeta.setDisplayName(message.addColor(getConfig().getString(kitName + ".materials." + items + ".name")));
+                itemMeta.setDisplayName(getMessage().addColor(getConfig().getString(kitName + ".materials." + items + ".name")));
             }
             if (getConfig().getKeys(true).contains(kitName+".materials." + items + ".lore")) {
                 List<String> lore = new ArrayList<>();
                 for (String listedLore : getConfig().getStringList(kitName + ".materials." + items + ".lore")) {
-                    lore.add(message.addColor(listedLore));
+                    lore.add(getMessage().addColor(listedLore));
                 }
                 itemMeta.setLore(lore);
             }
@@ -73,8 +71,8 @@ public class Kits {
         }
     }
     public boolean hasCooldown(Player player, String kitName) {
-        if (cooldown.containsKey(kitName + "-" + player.getUniqueId())) {
-            Long timeElapsed = System.currentTimeMillis() - cooldown.get(kitName + "-" + player.getUniqueId());
+        if (plugin.getKitCooldown().containsKey(kitName + "-" + player.getUniqueId())) {
+            Long timeElapsed = System.currentTimeMillis() - plugin.getKitCooldown().get(kitName + "-" + player.getUniqueId());
             String cooldownTimer = getConfig().getString(kitName + ".cooldown");
             Integer integer = Integer.valueOf(cooldownTimer.replace(cooldownTimer, cooldownTimer + "000"));
             return timeElapsed < integer;
@@ -83,20 +81,20 @@ public class Kits {
         }
     }
     public void addCooldown(Player player, String kitName) {
-        if (cooldown.containsKey(kitName + "-" + player.getUniqueId())) {
-            Long timeElapsed = System.currentTimeMillis() - cooldown.get(kitName + "-" + player.getUniqueId());
+        if (plugin.getKitCooldown().containsKey(kitName + "-" + player.getUniqueId())) {
+            Long timeElapsed = System.currentTimeMillis() - plugin.getKitCooldown().get(kitName + "-" + player.getUniqueId());
             String cooldownTimer = getConfig().getString(kitName + ".cooldown");
             Integer integer = Integer.valueOf(cooldownTimer.replace(cooldownTimer, cooldownTimer + "000"));
             if (timeElapsed > integer) {
-                cooldown.put(kitName + "-" + player.getUniqueId(), System.currentTimeMillis());
+                plugin.getKitCooldown().put(kitName + "-" + player.getUniqueId(), System.currentTimeMillis());
             }
         } else {
-            cooldown.put(kitName + "-" + player.getUniqueId(), System.currentTimeMillis());
+            plugin.getKitCooldown().put(kitName + "-" + player.getUniqueId(), System.currentTimeMillis());
         }
     }
     public String getCooldown(Player player, String kitName) {
-        if (cooldown.containsKey(kitName + "-" + player.getUniqueId())) {
-            Long timeElapsed = System.currentTimeMillis() - cooldown.get(kitName + "-" + player.getUniqueId());
+        if (plugin.getKitCooldown().containsKey(kitName + "-" + player.getUniqueId())) {
+            Long timeElapsed = System.currentTimeMillis() - plugin.getKitCooldown().get(kitName + "-" + player.getUniqueId());
             String cooldownTimer = getConfig().getString(kitName + ".cooldown");
             Integer integer = Integer.valueOf(cooldownTimer.replace(cooldownTimer, cooldownTimer + "000"));
             if (timeElapsed < integer) {
@@ -115,7 +113,7 @@ public class Kits {
             try {
                 config.load(file);
             } catch (IOException | InvalidConfigurationException e) {
-                message.sendLog(Level.WARNING, e.getMessage());
+                getMessage().sendLog(Level.WARNING, e.getMessage());
             }
         } else {
             List<String> lore = new ArrayList<>();
@@ -155,11 +153,8 @@ public class Kits {
             try {
                 config.save(file);
             } catch (IOException e) {
-                message.sendLog(Level.WARNING, e.getMessage());
+                getMessage().sendLog(Level.WARNING, e.getMessage());
             }
         }
-    }
-    public HashMap<String, Long> getCooldown() {
-        return cooldown;
     }
 }

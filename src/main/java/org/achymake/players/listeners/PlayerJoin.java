@@ -14,29 +14,32 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.text.MessageFormat;
 
-public class PlayerJoin implements Listener {
-    private final FileConfiguration config;
-    private final Userdata userdata;
-    private final Message message;
-    private final Server server;
-    private final Discord discord;
-    public PlayerJoin(Players plugin) {
-        config = plugin.getConfig();
-        userdata = plugin.getUserdata();
-        message = plugin.getMessage();
-        server = plugin.getServer();
-        discord = plugin.getDiscord();
+public record PlayerJoin(Players plugin) implements Listener {
+    private FileConfiguration getConfig() {
+        return plugin.getConfig();
+    }
+    private Userdata getUserdata() {
+        return plugin.getUserdata();
+    }
+    private Message getMessage() {
+        return plugin.getMessage();
+    }
+    private Server getServer() {
+        return plugin.getServer();
+    }
+    private Discord getDiscord() {
+        return plugin.getDiscord();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        if (userdata.isVanished(player)) {
-            userdata.setVanish(player, true);
-            message.send(player, "&6You joined back vanished");
+        if (getUserdata().isVanished(player)) {
+            getUserdata().setVanish(player, true);
+            getMessage().send(player, "&6You joined back vanished");
             event.setJoinMessage(null);
         } else {
-            userdata.hideVanished(player);
-            if (config.getBoolean("connection.join.enable")) {
+            getUserdata().hideVanished(player);
+            if (getConfig().getBoolean("connection.join.enable")) {
                 sendSound();
                 event.setJoinMessage(joinMessage(player));
             } else {
@@ -47,36 +50,36 @@ public class PlayerJoin implements Listener {
                     event.setJoinMessage(null);
                 }
             }
-            if (userdata.hasJoined(player)) {
+            if (getUserdata().hasJoined(player)) {
                 sendMotd(player, "welcome-back");
             } else {
                 sendMotd(player, "welcome");
             }
-            userdata.resetTabList();
+            getUserdata().resetTabList();
         }
-        userdata.sendUpdate(player);
-        discord.send(player.getName(), "Joined the Server");
+        getUserdata().sendUpdate(player);
+        getDiscord().send(player.getName(), "Joined the Server");
     }
     private String joinMessage(Player player) {
-        return message.addColor(MessageFormat.format(config.getString("connection.join.message"), player.getName()));
+        return getMessage().addColor(MessageFormat.format(getConfig().getString("connection.join.message"), player.getName()));
     }
     private void sendSound() {
-        if (config.getBoolean("connection.join.sound.enable")) {
-            String soundType = config.getString("connection.join.sound.type");
-            long soundVolume = config.getLong("connection.join.sound.volume");
-            long soundPitch = config.getLong("connection.join.sound.pitch");
-            for (Player players : server.getOnlinePlayers()) {
+        if (getConfig().getBoolean("connection.join.sound.enable")) {
+            String soundType = getConfig().getString("connection.join.sound.type");
+            float soundVolume = (float) getConfig().getDouble("connection.join.sound.volume");
+            float soundPitch = (float) getConfig().getDouble("connection.join.sound.pitch");
+            for (Player players : getServer().getOnlinePlayers()) {
                 players.playSound(players, Sound.valueOf(soundType), soundVolume, soundPitch);
             }
         }
     }
     private void sendMotd(Player player, String motd) {
-        if (config.isList("message-of-the-day." + motd)) {
-            for (String messages : config.getStringList("message-of-the-day." + motd)) {
-                message.send(player, messages.replaceAll("%player%", player.getName()));
+        if (getConfig().isList("message-of-the-day." + motd)) {
+            for (String messages : getConfig().getStringList("message-of-the-day." + motd)) {
+                getMessage().send(player, messages.replaceAll("%player%", player.getName()));
             }
-        } else if (config.isString("message-of-the-day." + motd)) {
-            message.send(player, config.getString("message-of-the-day." + motd).replaceAll("%player%", player.getName()));
+        } else if (getConfig().isString("message-of-the-day." + motd)) {
+            getMessage().send(player, getConfig().getString("message-of-the-day." + motd).replaceAll("%player%", player.getName()));
         }
     }
 }

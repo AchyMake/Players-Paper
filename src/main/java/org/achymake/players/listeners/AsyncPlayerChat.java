@@ -31,11 +31,16 @@ public record AsyncPlayerChat(Players plugin) implements Listener {
             String displayName = getUserdata().getDisplayName(player);
             String suffix = getUserdata().suffix(player);
             String output = event.getMessage();
-            if (event.getPlayer().hasPermission("players.event.chat.color")) {
-                event.setMessage(getMessage().addColor(output));
+            if (player.isOp()) {
+                event.setFormat(prefix + getMessage().addColor("&c" + player.getName() + "&f") + suffix + ChatColor.WHITE + ": " + getMessage().addColor(output));
+            } else {
+                if (player.hasPermission("players.event.chat.color")) {
+                    event.setFormat(prefix + displayName + suffix + ChatColor.WHITE + ": " + getMessage().addColor(output));
+                } else {
+                    event.setFormat(prefix + displayName + suffix + ChatColor.WHITE + ": " + output);
+                }
             }
             getDiscord().send(player.getName(), output);
-            event.setFormat(prefix + displayName + suffix + ChatColor.WHITE + ": " + output);
         }
     }
 }

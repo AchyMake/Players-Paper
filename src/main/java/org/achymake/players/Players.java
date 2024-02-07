@@ -1,7 +1,6 @@
 package org.achymake.players;
 
-import org.achymake.players.api.VaultEconomyProvider;
-import org.achymake.players.api.PlaceholderProvider;
+import org.achymake.players.api.*;
 import org.achymake.players.commands.*;
 import org.achymake.players.data.*;
 import org.achymake.players.listeners.*;
@@ -33,7 +32,6 @@ public final class Players extends JavaPlugin {
     private static Warps warps;
     private static Worth worth;
     private static Message message;
-    private static VaultEconomyProvider vaultEconomyProvider;
     private static PluginManager manager;
     private static Discord discord;
     private final List<Player> vanished = new ArrayList<>();
@@ -53,8 +51,9 @@ public final class Players extends JavaPlugin {
         reload();
         discord = new Discord(this);
         manager = getServer().getPluginManager();
-        vaultEconomyProvider = new VaultEconomyProvider(this);
-        getServer().getServicesManager().register(net.milkbowl.vault.economy.Economy.class, getEconomyProvider(), this, ServicePriority.Normal);
+        if (getManager().isPluginEnabled("Vault")) {
+            getServer().getServicesManager().register(net.milkbowl.vault.economy.Economy.class, new VaultEconomyProvider(this), this, ServicePriority.Normal);
+        }
         new PlaceholderProvider().register();
         registerCommands();
         registerEvents();
@@ -241,9 +240,6 @@ public final class Players extends JavaPlugin {
     }
     public List<Player> getVanished() {
         return vanished;
-    }
-    public VaultEconomyProvider getEconomyProvider() {
-        return vaultEconomyProvider;
     }
     public Worth getWorth() {
         return worth;

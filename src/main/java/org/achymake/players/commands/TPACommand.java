@@ -77,7 +77,9 @@ public class TPACommand implements CommandExecutor, TabCompleter {
         if (sender instanceof Player) {
             if (args.length == 1) {
                 for (Player players : getServer().getOnlinePlayers()) {
-                    commands.add(players.getName());
+                    if (!plugin.getVanished().contains(players)) {
+                        commands.add(players.getName());
+                    }
                 }
             }
         }

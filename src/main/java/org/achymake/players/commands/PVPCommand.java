@@ -117,7 +117,9 @@ public class PVPCommand implements CommandExecutor, TabCompleter {
                 if (player.hasPermission("players.command.pvp.others")) {
                     for (Player players : getServer().getOnlinePlayers()) {
                         if (!players.hasPermission("players.command.pvp.exempt")) {
-                            commands.add(players.getName());
+                            if (!plugin.getVanished().contains(players)) {
+                                commands.add(players.getName());
+                            }
                         }
                     }
                     commands.add(player.getName());

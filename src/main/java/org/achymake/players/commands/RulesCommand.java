@@ -46,7 +46,9 @@ public class RulesCommand implements CommandExecutor, TabCompleter {
             if (args.length == 1) {
                 if (sender.hasPermission("players.command.rules.others")) {
                     for (Player players : sender.getServer().getOnlinePlayers()) {
-                        commands.add(players.getName());
+                        if (!plugin.getVanished().contains(players)) {
+                            commands.add(players.getName());
+                        }
                     }
                 }
             }

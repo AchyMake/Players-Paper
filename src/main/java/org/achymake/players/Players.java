@@ -4,7 +4,6 @@ import org.achymake.players.api.*;
 import org.achymake.players.commands.*;
 import org.achymake.players.data.*;
 import org.achymake.players.listeners.*;
-import org.achymake.players.net.Discord;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -33,7 +32,6 @@ public final class Players extends JavaPlugin {
     private static Worth worth;
     private static Message message;
     private static PluginManager manager;
-    private static Discord discord;
     private final List<Player> vanished = new ArrayList<>();
     private final HashMap<String, Long> commandCooldown = new HashMap<>();
     private final HashMap<String, Long> kitCooldown = new HashMap<>();
@@ -49,7 +47,6 @@ public final class Players extends JavaPlugin {
         warps = new Warps(this);
         worth = new Worth(this);
         reload();
-        discord = new Discord(this);
         manager = getServer().getPluginManager();
         if (getManager().isPluginEnabled("Vault")) {
             getServer().getServicesManager().register(net.milkbowl.vault.economy.Economy.class, new VaultEconomyProvider(this), this, ServicePriority.Normal);
@@ -57,7 +54,6 @@ public final class Players extends JavaPlugin {
         new PlaceholderProvider().register();
         registerCommands();
         registerEvents();
-        getDiscord().send(getServer().getVersion(), "Server has Started");
         getMessage().sendLog(Level.INFO, "Enabled " + getDescription().getName() + " " + getDescription().getVersion());
         sendUpdate();
     }
@@ -66,7 +62,6 @@ public final class Players extends JavaPlugin {
         getServer().getScheduler().cancelTasks(this);
         getVanished().clear();
         getCommandCooldown().clear();
-        getDiscord().send(getServer().getVersion(), "Server has Stopped");
         getMessage().sendLog(Level.INFO, "Disabled " + getDescription().getName() + " " + getDescription().getVersion());
     }
     private void registerCommands() {
@@ -261,9 +256,6 @@ public final class Players extends JavaPlugin {
     }
     public Userdata getUserdata() {
         return userdata;
-    }
-    public Discord getDiscord() {
-        return discord;
     }
     public Message getMessage() {
         return message;

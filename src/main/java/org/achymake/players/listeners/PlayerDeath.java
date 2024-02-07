@@ -2,7 +2,6 @@ package org.achymake.players.listeners;
 
 import org.achymake.players.Players;
 import org.achymake.players.data.Userdata;
-import org.achymake.players.net.Discord;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -23,14 +22,10 @@ public record PlayerDeath(Players plugin) implements Listener {
     private Userdata getUserdata() {
         return plugin.getUserdata();
     }
-    private Discord getDiscord() {
-        return plugin.getDiscord();
-    }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getPlayer();
         getUserdata().setLocation(player, "death");
-        getDiscord().send(player.getName(), event.getDeathMessage());
         if (!(getConfig().getInt("deaths.drop-player-head.chance") > new Random().nextInt(100)))return;
         if (getConfig().getBoolean("deaths.drop-player-head.enable")) {
             event.getDrops().add(getOfflinePlayerHead(player, 1));

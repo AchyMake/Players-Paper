@@ -2,7 +2,6 @@ package org.achymake.players.listeners;
 
 import org.achymake.players.Players;
 import org.achymake.players.data.*;
-import org.achymake.players.net.*;
 import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -26,9 +25,6 @@ public record PlayerJoin(Players plugin) implements Listener {
     }
     private Server getServer() {
         return plugin.getServer();
-    }
-    private Discord getDiscord() {
-        return plugin.getDiscord();
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
@@ -58,7 +54,6 @@ public record PlayerJoin(Players plugin) implements Listener {
             getUserdata().resetTabList();
         }
         getUserdata().sendUpdate(player);
-        getDiscord().send(player.getName(), "Joined the Server");
     }
     private String joinMessage(Player player) {
         return getMessage().addColor(MessageFormat.format(getConfig().getString("connection.join.message"), player.getName()));

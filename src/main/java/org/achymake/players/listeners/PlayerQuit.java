@@ -3,7 +3,6 @@ package org.achymake.players.listeners;
 import org.achymake.players.Players;
 import org.achymake.players.data.Message;
 import org.achymake.players.data.Userdata;
-import org.achymake.players.net.Discord;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
@@ -32,9 +31,6 @@ public record PlayerQuit(Players plugin) implements Listener {
     private Server getServer() {
         return plugin.getServer();
     }
-    private Discord getDiscord() {
-        return plugin.getDiscord();
-    }
     private BukkitScheduler getScheduler() {
         return Bukkit.getScheduler();
     }
@@ -62,7 +58,6 @@ public record PlayerQuit(Players plugin) implements Listener {
             }
             getUserdata().resetTabList();
         }
-        getDiscord().send(player.getName(), "Left the Server");
     }
     private String quitMessage(Player player) {
         return getMessage().addColor(MessageFormat.format(getConfig().getString("connection.quit.message"), player.getName()));

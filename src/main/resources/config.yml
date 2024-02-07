@@ -1,12 +1,4 @@
 notify-update: true
-discord:
-  enable: false
-  webhook: ""
-economy:
-  currency: "$"
-  format: "#,##0.00"
-  starter-balance: 0.0
-  minimum-payment: 0.01
 tablist:
   enable: false
   header: "&e--&6--&d--&9--&7[&b&lplay.your-server.org&7]&9--&d--&6--&e--"
@@ -17,6 +9,11 @@ message-of-the-day:
   welcome-back:
     - "&6Welcome back&f %player%"
     - "&6We missed you!"
+economy:
+  currency: "$"
+  format: "#,##0.00"
+  starter-balance: 0.0
+  minimum-payment: 0.01
 rules:
   - "&6Rules:"
   - "&61.&f No server crashing"

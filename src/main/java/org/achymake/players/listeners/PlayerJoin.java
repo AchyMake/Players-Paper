@@ -44,6 +44,11 @@ public record PlayerJoin(Players plugin) implements Listener {
                     event.setJoinMessage(joinMessage(player));
                 } else {
                     event.setJoinMessage(null);
+                    for (Player players : getServer().getOnlinePlayers()) {
+                        if (players.hasPermission("players.event.join.notify")) {
+                            getMessage().send(players, player.getName() + "&7 joined the Server");
+                        }
+                    }
                 }
             }
             if (getUserdata().hasJoined(player)) {

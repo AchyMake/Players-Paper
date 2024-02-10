@@ -655,6 +655,12 @@ permissions:
   players.event.quit.message:
     description: message
     default: op
+  players.event.join.notify:
+    description: message
+    default: op
+  players.event.quit.notify:
+    description: message
+    default: op
   players.event.death.location:
     description: message
     default: op

@@ -54,6 +54,11 @@ public record PlayerQuit(Players plugin) implements Listener {
                     playSound();
                 } else {
                     event.setQuitMessage(null);
+                    for (Player players : getServer().getOnlinePlayers()) {
+                        if (players.hasPermission("players.event.quit.notify")) {
+                            getMessage().send(players, player.getName() + "&7 left the Server");
+                        }
+                    }
                 }
             }
             getUserdata().resetTabList();
